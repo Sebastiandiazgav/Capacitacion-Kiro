@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — RAG Básico en Vibe Mode</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem;letter-spacing:.05em}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:680px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .cli-block{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2.5rem}
+    .cli-block code{display:block;background:#0d1117;border-radius:8px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;color:var(--cyan-2);margin-top:1.5rem;overflow-x:auto;line-height:1.8}
+    .arch-diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem;margin-top:2.5rem;text-align:center}
+    .arch-flow{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}
+    .arch-node{background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.3rem;font-size:.85rem;font-weight:600}
+    .arch-node.main{background:linear-gradient(135deg,var(--purple-1),var(--purple-2));border:none;color:#fff}
+    .arch-node.tool{background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:var(--cyan-2)}
+    .arch-arrow{font-size:1.3rem;color:var(--cyan-1)}
+    .arch-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-top:2rem;font-weight:600}
+    .step-list{margin-top:2.5rem;counter-reset:step}
+    .step-item{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.75rem;margin-bottom:1.25rem;display:flex;gap:1.5rem;align-items:flex-start;counter-increment:step}
+    .step-item::before{content:counter(step);background:linear-gradient(135deg,var(--purple-1),var(--cyan-1));color:#fff;font-weight:800;font-size:1.1rem;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .step-item h3{margin-bottom:.4rem}
+    .step-item p{font-size:.875rem}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}.arch-flow{flex-direction:column}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#que-es-rag">¿Qué es RAG?</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#interfaz">Interfaz</a></li>
+    <li><a href="#workshop">Workshop</a></li>
+    <li><a href="#timeline">Timeline</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 1 · Sección 1.3 · Workshop 30 min</div>
+  <h1 class="fade-in">RAG Básico en<br /><span class="gradient-text">Vibe Mode</span></h1>
+  <p class="fade-in">Construye tu primer RAG funcional sobre documentación interna de AFP UNO usando Kiro en modo Vibe. Sin infraestructura externa — todo corre local con LangChain + Bedrock.</p>
+  <a href="#que-es-rag" class="btn-primary fade-in">Comenzar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- QUÉ ES RAG -->
+<section id="que-es-rag">
+  <div class="section-label">01 — Concepto</div>
+  <h2 class="fade-in">¿Qué es <span class="gradient-text">RAG</span>?</h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    RAG (Retrieval Augmented Generation) es un patrón donde el modelo de IA no responde solo de memoria — primero busca información relevante en tus documentos y luego genera una respuesta fundamentada con fuentes citadas. Es la forma más directa de hacer que un LLM "conozca" la documentación interna de tu equipo.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Flujo de un RAG</h3>
+    <p style="font-size:.85rem;margin-top:.5rem;color:var(--text-muted);">Pregunta → Búsqueda en documentos → Respuesta con contexto</p>
+    <div class="arch-label">INDEXACIÓN (una sola vez)</div>
+    <div class="arch-flow">
+      <div class="arch-node">📄 Documentos</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">✂️ Chunks</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">🔢 Embeddings (Titan)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">🗄️ Vector Store</div>
+    </div>
+    <div class="arch-label">CONSULTA (cada pregunta)</div>
+    <div class="arch-flow">
+      <div class="arch-node">❓ Pregunta</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">🔍 Retriever</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">📋 Chunks relevantes</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node main">🧠 Claude (Bedrock)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">✅ Respuesta + Fuentes</div>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>¿Por qué RAG y no fine-tuning?</h3>
+      <p>RAG no modifica el modelo — solo le da contexto en cada consulta. Es más rápido de implementar, más barato de mantener y actualizable en tiempo real (cambias un doc y listo).</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🏢</div>
+      <h3>Caso AFP UNO</h3>
+      <p>Normativas de la Superintendencia, procedimientos de cotizaciones, guías de deploy, FAQ operativa. El equipo pregunta en lenguaje natural y recibe respuestas con la fuente exacta.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⚡</div>
+      <h3>Resultado en 30 minutos</h3>
+      <p>Con Kiro en modo Vibe + LangChain, el agente genera el código completo. Tú solo le das el prompt correcto y verificas el resultado.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- STACK TÉCNICO -->
+<section id="stack">
+  <div class="section-label">02 — Stack técnico</div>
+  <h2 class="fade-in">LangChain + Bedrock + <span class="gradient-text">Vector Store en memoria</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Todo corre local. No necesitas Knowledge Base preconfigurado, ni S3, ni bases de datos externas. Los documentos se cargan desde archivos locales, se procesan en memoria y se consultan contra Bedrock.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">📦</div>
+      <h3>Node.js + TypeScript</h3>
+      <p>Runtime y lenguaje base. Inicializamos con <code>npm init</code> y configuración TypeScript estándar.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔗</div>
+      <h3>LangChain</h3>
+      <p><code>@langchain/core</code>, <code>@langchain/aws</code>, <code>langchain</code> — framework que abstrae el flujo RAG completo en componentes reutilizables.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧠</div>
+      <h3>Claude via Bedrock</h3>
+      <p>Modelo de lenguaje que genera las respuestas. Se invoca vía <code>ChatBedrockConverse</code> de LangChain.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔢</div>
+      <h3>Titan Embeddings</h3>
+      <p>Modelo de Amazon para convertir texto en vectores numéricos. Vía <code>BedrockEmbeddings</code>.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🗄️</div>
+      <h3>MemoryVectorStore</h3>
+      <p>Vector store en memoria de LangChain. Cero config, cero infra. Ideal para workshops y prototipos rápidos.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📄</div>
+      <h3>Docs locales (.md)</h3>
+      <p>Archivos Markdown que simulan documentación interna de AFP UNO. Se cargan con <code>DirectoryLoader</code>.</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in">
+    <h3>Dependencias del proyecto</h3>
+    <code>
+npm install @langchain/core @langchain/aws @langchain/community langchain
+npm install @aws-sdk/client-bedrock-runtime
+npm install typescript tsx @types/node --save-dev
+    </code>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- INTERFAZ KIRO -->
+<section id="interfaz">
+  <div class="section-label">03 — Exploración de la interfaz</div>
+  <h2 class="fade-in">Chat, Timeline, File Tree, <span class="gradient-text">Terminal integrado</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Antes de lanzar el workshop, familiarízate con las áreas clave de Kiro que vas a usar durante la construcción del RAG.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">💬</div>
+      <h3>Chat (Vibe Mode)</h3>
+      <p>Panel lateral donde escribes prompts al agente. Aquí le pedirás que genere el RAG. El agente responde, propone cambios y los ejecuta.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📊</div>
+      <h3>Timeline</h3>
+      <p>Registro cronológico de todas las acciones del agente: qué archivos creó, qué comandos ejecutó, en qué orden. Tu auditoría en tiempo real.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📂</div>
+      <h3>File Tree</h3>
+      <p>Explorador de archivos del proyecto. Verás cómo el agente crea la estructura: <code>src/</code>, <code>docs/</code>, <code>.kiro/</code>, configs.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">💻</div>
+      <h3>Terminal integrado</h3>
+      <p>El agente ejecuta comandos aquí: <code>npm install</code>, <code>npx tsx</code>, etc. Puedes ver el output en tiempo real.</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in">
+    <p>En el timeline vas a verificar que el agente usó las herramientas correctas: <strong>fs_write</strong> para crear archivos y <strong>execute_pwsh</strong> para ejecutar comandos. Si ves estas herramientas, el agente operó autónomamente.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WORKSHOP -->
+<section id="workshop">
+  <div class="section-label">04 — Workshop paso a paso</div>
+  <h2 class="fade-in">Construye tu RAG en <span class="gradient-text">30 minutos</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Sigue estos pasos usando Kiro en modo Vibe. El agente hace el trabajo pesado — tú guías con prompts y verificas resultados.
+  </p>
+
+  <div class="step-list fade-in">
+    <div class="step-item">
+      <div>
+        <h3>Crear workspace</h3>
+        <p>Abre Kiro → File → Open Folder → crea una carpeta nueva para el proyecto RAG. Abre el chat Vibe.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div>
+        <h3>Pedir scaffold al agente</h3>
+        <p>En el chat, escribe el prompt de scaffold (ver archivo <code>1.3 rag-basico-vibe.md</code> para el prompt exacto). El agente generará la estructura completa.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div>
+        <h3>Agregar documentación interna</h3>
+        <p>Copia los archivos de <code>1.3docs/</code> a la carpeta <code>docs/</code> de tu proyecto. Son documentos simulados de AFP UNO.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div>
+        <h3>Verificar credenciales AWS</h3>
+        <p>Confirma que tus credenciales del sandbox están configuradas: <code>aws sts get-caller-identity</code> en terminal.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div>
+        <h3>Ejecutar el RAG</h3>
+        <p>El agente ejecutará el proyecto. Verás la indexación de documentos y podrás hacer tu primera consulta.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div>
+        <h3>Probar consultas</h3>
+        <p>"¿Cuál es el procedimiento para cotizaciones?" — El RAG debe responder con fuentes citadas del documento interno.</p>
+      </div>
+    </div>
+    <div class="step-item">
+      <div>
+        <h3>Explorar Timeline</h3>
+        <p>Revisa el timeline de Kiro: ¿cuántos archivos creó? ¿qué comandos ejecutó? ¿usó fs_write y execute_pwsh?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="section-label">05 — Verificación y entregable</div>
+  <h2 class="fade-in">¿Cómo sé que <span class="gradient-text">funcionó?</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Tu entregable debe cumplir estos criterios. Revísalos al final del workshop.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">✅</div>
+      <h3>RAG responde consultas</h3>
+      <p>Haz al menos 3 preguntas diferentes sobre la documentación interna. Debe responder correctamente citando la fuente.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📂</div>
+      <h3>Estructura .kiro/ presente</h3>
+      <p>El proyecto tiene la carpeta <code>.kiro/</code> con configuración del workspace agéntico.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">☁️</div>
+      <h3>Conexión a Bedrock verificada</h3>
+      <p>El RAG invoca Claude y Titan vía Bedrock exitosamente. Las credenciales del sandbox funcionan.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🤖</div>
+      <h3>Operación autónoma del agente</h3>
+      <p>En el timeline se ve que el agente creó archivos, instaló deps y ejecutó código sin intervención manual tuya.</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in">
+    <p><strong>Discusión final:</strong> "¿Qué documentación interna de AFP UNO podría beneficiarse de un RAG? ¿Normativas? ¿Procedimientos de cotizaciones? ¿Guías de cálculo de comisiones? ¿FAQs de operaciones?"</p>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 1 · Módulo 1 · Sección 1.3 — RAG Básico en Vibe Mode</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
