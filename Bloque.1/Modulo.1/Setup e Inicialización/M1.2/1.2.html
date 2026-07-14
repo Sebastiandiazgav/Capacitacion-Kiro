@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — Plataforma Agéntica (v1.1)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:    #0a0b14;
+      --bg-card:    #111827;
+      --bg-card2:   #1a1f35;
+      --purple-1:   #7c3aed;
+      --purple-2:   #a855f7;
+      --cyan-1:     #06b6d4;
+      --cyan-2:     #22d3ee;
+      --text-main:  #f1f5f9;
+      --text-muted: #94a3b8;
+      --border:     rgba(124,58,237,0.25);
+      --glow:       rgba(124,58,237,0.15);
+      --green:      #4ade80;
+      --yellow:     #fbbf24;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(10,11,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--purple-2), var(--cyan-1));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: .875rem;
+      font-weight: 500; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cyan-2); }
+
+    /* ── SECTIONS ── */
+    section {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 7rem 3rem 4rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: .75rem; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--cyan-1);
+      margin-bottom: .75rem;
+    }
+
+    h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.1; }
+    h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; line-height: 1.2; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--purple-2) 0%, var(--cyan-1) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p { color: var(--text-muted); line-height: 1.75; font-size: 1rem; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh; max-width: 100%;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; padding: 7rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 900px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(124,58,237,0.15); border: 1px solid var(--border);
+      border-radius: 999px; padding: .35rem 1rem;
+      font-size: .8rem; font-weight: 600; color: var(--purple-2);
+      margin-bottom: 1.5rem; letter-spacing: .05em;
+    }
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--purple-2); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    #hero h1 { max-width: 900px; margin-bottom: 1.5rem; }
+    #hero p  { max-width: 680px; font-size: 1.15rem; margin-bottom: 2.5rem; }
+
+    .btn-primary {
+      display: inline-block; padding: .85rem 2.2rem;
+      background: linear-gradient(135deg, var(--purple-1), var(--purple-2));
+      color: #fff; font-weight: 700; font-size: .95rem;
+      border-radius: 8px; text-decoration: none;
+      box-shadow: 0 0 30px rgba(124,58,237,0.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 45px rgba(124,58,237,0.6); }
+
+    /* ── CARDS ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: transform .25s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--purple-1), var(--cyan-1));
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px var(--glow); }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(124,58,237,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .card h3 { margin-bottom: .6rem; }
+    .card p  { font-size: .9rem; }
+
+    /* ── ARCHITECTURE ── */
+    .arch-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 3rem;
+      margin-top: 2.5rem; text-align: center;
+    }
+    .arch-flow {
+      display: flex; align-items: center; justify-content: center;
+      gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem;
+    }
+    .arch-node {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: .9rem 1.3rem;
+      font-size: .85rem; font-weight: 600;
+    }
+    .arch-node.main {
+      background: linear-gradient(135deg, var(--purple-1), var(--purple-2));
+      border: none; color: #fff;
+    }
+    .arch-node.tool {
+      background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.3);
+      color: var(--cyan-2);
+    }
+    .arch-arrow { font-size: 1.3rem; color: var(--cyan-1); }
+    .arch-label {
+      font-size: .7rem; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-muted); margin-top: 2rem; font-weight: 600;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      position: relative; margin-top: 3rem; padding-left: 2rem;
+    }
+    .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(180deg, var(--purple-1), var(--cyan-1));
+    }
+    .timeline-item {
+      position: relative; margin-bottom: 2.5rem; padding-left: 2rem;
+    }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -2rem; top: .4rem;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--purple-2); border: 2px solid var(--bg-deep);
+    }
+    .timeline-item h3 { margin-bottom: .3rem; }
+    .timeline-item p { font-size: .875rem; }
+
+    /* ── MODES ── */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .mode-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      position: relative; overflow: hidden;
+    }
+    .mode-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .mode-card.vibe::before { background: var(--cyan-1); }
+    .mode-card.spec::before { background: var(--purple-2); }
+    .mode-card.aidlc::before { background: linear-gradient(90deg, var(--purple-1), var(--cyan-1)); }
+    .mode-tag {
+      display: inline-block; padding: .25rem .75rem;
+      border-radius: 999px; font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em; margin-bottom: 1rem;
+    }
+    .mode-card.vibe .mode-tag { background: rgba(6,182,212,0.15); color: var(--cyan-1); }
+    .mode-card.spec .mode-tag { background: rgba(168,85,247,0.15); color: var(--purple-2); }
+    .mode-card.aidlc .mode-tag { background: rgba(124,58,237,0.15); color: var(--purple-2); }
+    .mode-card h3 { margin-bottom: .5rem; }
+    .mode-card p { font-size: .875rem; }
+    .mode-module {
+      margin-top: 1rem; font-size: .75rem; font-weight: 600;
+      color: var(--cyan-1); text-transform: uppercase; letter-spacing: .1em;
+    }
+    .mode-details { margin-top: .75rem; padding: 0; list-style: none; }
+    .mode-details li {
+      font-size: .8rem; color: var(--text-muted); padding: .25rem 0;
+      padding-left: 1rem; position: relative;
+    }
+    .mode-details li::before {
+      content: '→'; position: absolute; left: 0; color: var(--cyan-1);
+    }
+
+    /* ── CLI ── */
+    .cli-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.5rem;
+      margin-top: 2.5rem;
+    }
+    .cli-block code {
+      display: block; background: #0d1117;
+      border-radius: 8px; padding: 1.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: .85rem; color: var(--cyan-2);
+      margin-top: 1.5rem; overflow-x: auto;
+      line-height: 1.8;
+    }
+    .cli-uses {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-top: 1.5rem;
+    }
+    .cli-use {
+      background: var(--bg-card2); border-radius: 10px; padding: 1rem;
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .85rem; font-weight: 500;
+    }
+    .cli-use-icon { font-size: 1.25rem; }
+
+    /* ── FEATURES LIST ── */
+    .features-list {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .feature {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.75rem;
+      display: flex; gap: 1.25rem; align-items: flex-start;
+      transition: border-color .2s;
+    }
+    .feature:hover { border-color: var(--purple-2); }
+    .feature-badge {
+      background: linear-gradient(135deg, var(--purple-1), var(--cyan-1));
+      border-radius: 10px; padding: .6rem;
+      font-size: 1.25rem; flex-shrink: 0;
+    }
+    .feature h3 { margin-bottom: .4rem; font-size: 1rem; }
+    .feature p  { font-size: .85rem; }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin-top: 2.5rem;
+      border-radius: 16px; overflow: hidden;
+    }
+    .compare-table th, .compare-table td {
+      padding: 1rem 1.5rem; text-align: left; font-size: .9rem;
+    }
+    .compare-table thead tr { background: var(--bg-card2); }
+    .compare-table thead th { font-weight: 700; color: var(--text-main); }
+    .compare-table tbody tr { border-top: 1px solid var(--border); }
+    .compare-table tbody tr:nth-child(even) { background: rgba(17,24,39,0.5); }
+    .compare-table td:first-child { color: var(--text-muted); font-weight: 500; }
+    .check { color: var(--green); }
+    .cross { color: #f87171; }
+
+    /* ── QUOTE ── */
+    .quote-block {
+      background: var(--bg-card);
+      border-left: 4px solid var(--purple-2);
+      border-radius: 0 12px 12px 0;
+      padding: 2rem 2.5rem; margin-top: 2.5rem;
+    }
+    .quote-block p {
+      font-size: 1.1rem; font-style: italic; color: var(--text-main);
+      line-height: 1.7;
+    }
+    .quote-block .quote-source {
+      font-size: .8rem; font-style: normal; color: var(--text-muted);
+      margin-top: .75rem;
+    }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 auto;
+    }
+
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted); font-size: .8rem;
+    }
+    footer a { color: var(--cyan-1); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 6rem 1.5rem 3rem; }
+      .arch-flow { flex-direction: column; }
+      .modes-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAV
+══════════════════════════════════════════ -->
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#paradigma">Paradigma</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#agentes">Agentes</a></li>
+    <li><a href="#cli">CLI</a></li>
+    <li><a href="#modos">Modos</a></li>
+    <li><a href="#resumen">Resumen</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 1 · Sección 1.2</div>
+  <h1 class="fade-in">Kiro como<br /><span class="gradient-text">Plataforma Agéntica</span></h1>
+  <p class="fade-in">Kiro no es un IDE con autocompletado inteligente. Es una plataforma donde agentes autónomos analizan, planifican, implementan y verifican — mientras tú supervisas y tomas las decisiones de diseño.</p>
+  <a href="#paradigma" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     PARADIGMA: IDE vs PLATAFORMA
+══════════════════════════════════════════ -->
+<section id="paradigma">
+  <div class="section-label">01 — El cambio de paradigma</div>
+  <h2 class="fade-in">De <span class="gradient-text">Desarrollo Imperativo</span> a Desarrollo Dirigido por Intención</h2>
+  <p class="fade-in" style="max-width:720px; margin-top:1rem;">
+    Los IDEs tradicionales con IA (Copilot, Cursor) siguen un modelo imperativo: tú escribes, la IA completa. Kiro introduce el "Intent-Driven Development" — defines qué quieres lograr y los agentes ejecutan el cómo, con rigor de ingeniería.
+  </p>
+
+  <div class="quote-block fade-in">
+    <p>"La unidad de trabajo en Kiro no es un prompt — es una especificación estructurada que el agente usa para planificar, implementar, verificar y documentar tu feature de punta a punta."</p>
+    <div class="quote-source">— DZone, "The Agentic IDE That Makes Specs the Unit of Work" (2026)</div>
+  </div>
+
+  <table class="compare-table fade-in">
+    <thead>
+      <tr>
+        <th>Aspecto</th>
+        <th>IDE con IA (Copilot, Cursor)</th>
+        <th>Plataforma Agéntica (Kiro)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Modelo de interacción</td>
+        <td>Tú escribes → IA completa</td>
+        <td>Tú defines intención → Agente ejecuta plan completo</td>
+      </tr>
+      <tr>
+        <td>Unidad de trabajo</td>
+        <td>Línea de código / prompt suelto</td>
+        <td>Especificación (requirements + design + tasks)</td>
+      </tr>
+      <tr>
+        <td>Planificación</td>
+        <td><span class="cross">✗</span> No planifica, responde</td>
+        <td><span class="check">✓</span> Genera plan antes de codificar</td>
+      </tr>
+      <tr>
+        <td>Verificación</td>
+        <td><span class="cross">✗</span> Manual</td>
+        <td><span class="check">✓</span> Automática entre cada tarea</td>
+      </tr>
+      <tr>
+        <td>Documentación</td>
+        <td><span class="cross">✗</span> Separada del flujo</td>
+        <td><span class="check">✓</span> Generada y sincronizada automáticamente</td>
+      </tr>
+      <tr>
+        <td>Autonomía</td>
+        <td>Reactiva (espera tu input)</td>
+        <td>Proactiva (ejecuta tareas end-to-end)</td>
+      </tr>
+      <tr>
+        <td>Sub-agentes</td>
+        <td><span class="cross">✗</span> No existe</td>
+        <td><span class="check">✓</span> Delega en agentes especializados en paralelo</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     ARQUITECTURA INTERNA
+══════════════════════════════════════════ -->
+<section id="arquitectura">
+  <div class="section-label">02 — Arquitectura interna</div>
+  <h2 class="fade-in">Agente Principal → Sub-agentes → <span class="gradient-text">Herramientas</span></h2>
+  <p class="fade-in" style="max-width:720px; margin-top:1rem;">
+    Kiro opera con una jerarquía de agentes. El agente principal (orquestador) recibe tu intención, construye un plan, y delega tareas a sub-agentes especializados. Cada sub-agente tiene acceso a herramientas específicas y reporta resultados al orquestador.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Flujo de orquestación agéntica</h3>
+    <p style="font-size:.85rem; margin-top:.5rem; color:var(--text-muted);">El agente principal coordina, los sub-agentes ejecutan, las herramientas interactúan con el mundo</p>
+
+    <div class="arch-label">CAPA 1: DEVELOPER</div>
+    <div class="arch-flow">
+      <div class="arch-node">👤 Developer</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="color:var(--cyan-2);">💬 Prompt / Intención</div>
+    </div>
+
+    <div class="arch-label">CAPA 2: ORQUESTADOR</div>
+    <div class="arch-flow">
+      <div class="arch-node main">🧠 Agente Principal (Orquestador)</div>
+    </div>
+    <div class="arch-flow" style="margin-top:.5rem;">
+      <div class="arch-node" style="font-size:.75rem;">Planifica</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="font-size:.75rem;">Delega</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="font-size:.75rem;">Verifica</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="font-size:.75rem;">Reporta</div>
+    </div>
+
+    <div class="arch-label">CAPA 3: SUB-AGENTES ESPECIALIZADOS</div>
+    <div class="arch-flow">
+      <div class="arch-node">🔍 Análisis</div>
+      <div class="arch-node">✍️ Código</div>
+      <div class="arch-node">🧪 Testing</div>
+      <div class="arch-node">📖 Docs</div>
+      <div class="arch-node">🔒 Security</div>
+    </div>
+
+    <div class="arch-label">CAPA 4: HERRAMIENTAS</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">📂 File System</div>
+      <div class="arch-node tool">💻 Terminal</div>
+      <div class="arch-node tool">🔌 MCP Servers</div>
+      <div class="arch-node tool">🌐 Web Search</div>
+      <div class="arch-node tool">🗄️ Bases de datos</div>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🧠</div>
+      <h3>Agente Principal</h3>
+      <p>El orquestador central. Recibe tu intención, la descompone en tareas, decide qué sub-agentes necesita, coordina la ejecución y verifica resultados antes de entregarte el output final.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🤖</div>
+      <h3>Sub-agentes</h3>
+      <p>Agentes especializados que se ejecutan en paralelo. Cada uno tiene un contexto reducido y enfocado — no se distraen con información irrelevante. Reportan al orquestador.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔧</div>
+      <h3>Herramientas (Tools)</h3>
+      <p>Los sub-agentes usan herramientas para interactuar con el mundo: leer/escribir archivos, ejecutar comandos, buscar código, hacer requests HTTP, conectar con APIs vía MCP.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔌</div>
+      <h3>MCP (Model Context Protocol)</h3>
+      <p>Protocolo estándar que conecta a los agentes con servicios externos: bases de datos, APIs, documentación, herramientas de deploy. Extiende capacidades sin límites.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧭</div>
+      <h3>Steering (Directrices)</h3>
+      <p>Archivos en <code>.kiro/steering/</code> que inyectan reglas persistentes: convenciones de código, estándares del equipo, guías de arquitectura. Los agentes las respetan siempre.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⚡</div>
+      <h3>Hooks (Event-Driven)</h3>
+      <p>Automatizaciones que se disparan ante eventos: al guardar un archivo, al completar una tarea, antes de ejecutar una herramienta. Los agentes reaccionan sin que tú intervengas.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     EJÉRCITO DE AGENTES
+══════════════════════════════════════════ -->
+<section id="agentes">
+  <div class="section-label">03 — El ejército de agentes</div>
+  <h2 class="fade-in">Cada developer tiene <span class="gradient-text">múltiples agentes especializados</span></h2>
+  <p class="fade-in" style="max-width:720px; margin-top:1rem;">
+    En Kiro, un developer no trabaja con "un solo asistente genérico". Puede configurar un ecosistema de agentes especializados — cada uno con su propio contexto, herramientas permitidas y reglas de comportamiento. Son portables, versionables y compartibles con el equipo.
+  </p>
+
+  <div class="features-list">
+    <div class="feature fade-in">
+      <div class="feature-badge">🔍</div>
+      <div>
+        <h3>Agente de Code Review</h3>
+        <p>Revisa PRs automáticamente. Conoce los estándares del equipo, detecta anti-patterns y sugiere mejoras con contexto.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🏗️</div>
+      <div>
+        <h3>Agente de Arquitectura</h3>
+        <p>Evalúa decisiones de diseño, genera diagramas, verifica que el código nuevo sea consistente con la arquitectura existente.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🧪</div>
+      <div>
+        <h3>Agente de Testing</h3>
+        <p>Genera tests unitarios, de integración y property-based. Detecta edge cases que los tests manuales no cubren.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">📖</div>
+      <div>
+        <h3>Agente de Documentación</h3>
+        <p>Mantiene docs sincronizadas con el código. Genera README, API docs y changelogs automáticamente al implementar cambios.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">☁️</div>
+      <div>
+        <h3>Agente DevOps/Cloud</h3>
+        <p>Gestiona infraestructura como código, genera Terraform/CDK, troubleshoots producción y automatiza deploys.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🔒</div>
+      <div>
+        <h3>Agente de Seguridad</h3>
+        <p>Escanea vulnerabilidades, valida dependencias, detecta secrets expuestos y genera reportes de compliance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2.5rem;">
+    <h3>📂 Configuración de un agente custom</h3>
+    <p style="font-size:.875rem; margin-top:.5rem; color:var(--text-muted);">Los agentes se definen en <code>.kiro/agents/</code> como archivos Markdown con front-matter:</p>
+    <code>
+# .kiro/agents/backend-specialist.md
+
+---
+name: Backend Specialist
+description: Agente experto en backend Node.js/Python
+tools:
+  allow:
+    - "@builtin"        # Todas las herramientas built-in
+    - "mcp:database"    # MCP server de base de datos
+  deny:
+    - "fs_write"        # No puede escribir fuera de src/
+resources:
+  - src/api/**
+  - server.js
+  - docs/backend-standards.md
+---
+
+## Rol
+Eres un especialista en desarrollo backend.
+Solo trabajas con archivos en src/api/ y server.js.
+Sigues las convenciones de backend-standards.md.
+
+## Reglas
+1. Siempre usa async/await
+2. Manejo de errores con try/catch en cada endpoint
+3. Validación de inputs con Zod/Joi
+4. Documentación JSDoc en cada función pública
+    </code>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p>"Creas un agente como configuración en .kiro/agents/ y lo ejecutas bajo demanda donde quieras — terminal local, step de pipeline, o servidor con cron."</p>
+    <div class="quote-source">— Concepto clave de esta sección</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     KIRO CLI
+══════════════════════════════════════════ -->
+<section id="cli">
+  <div class="section-label">04 — Kiro CLI</div>
+  <h2 class="fade-in">Agentes en tu terminal, <span class="gradient-text">en cualquier lugar</span></h2>
+  <p class="fade-in" style="max-width:720px; margin-top:1rem;">
+    Kiro CLI trae los mismos agentes del IDE directamente a tu terminal. No es un servicio corriendo 24/7 — es un proceso que se invoca cuando lo necesitas, con el contexto de tu proyecto. Tu carpeta <code>.kiro/</code> funciona en ambos entornos: configuras una vez, usas en todas partes.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🖥️</div>
+      <h3>Terminal interactiva</h3>
+      <p>Ejecuta <code>kiro-cli</code> y chatea con agentes directamente en tu terminal. Scaffold proyectos, debug issues, escribe IaC — sin salir del shell.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🤖</div>
+      <h3>Headless Mode (CI/CD)</h3>
+      <p>Genera un API key, configúralo como variable de entorno, y Kiro CLI se ejecuta programáticamente. Ideal para pipelines, scripts de build y automatización.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🪟</div>
+      <h3>Multiplataforma</h3>
+      <p>Disponible para macOS, Linux y Windows (nativo desde CLI 2.0, abril 2026). Sin necesidad de WSL.</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in">
+    <h3>Instalación y uso</h3>
+    <code>
+# Instalar Kiro CLI
+$ curl -fsSL https://cli.kiro.dev/install | bash
+
+# Iniciar chat interactivo
+$ kiro-cli
+
+# Ejecutar un agente custom
+$ kiro-cli --agent backend-specialist
+
+# Headless: ejecutar en pipeline sin interacción
+$ KIRO_API_KEY=xxx kiro-cli --headless \
+    --prompt "Genera PR con los cambios de la rama feature/auth"
+    </code>
+    <div class="cli-uses" style="margin-top:2rem;">
+      <div class="cli-use"><span class="cli-use-icon">💻</span> Terminal local</div>
+      <div class="cli-use"><span class="cli-use-icon">🔄</span> GitHub Actions</div>
+      <div class="cli-use"><span class="cli-use-icon">⏰</span> Cron en servidor</div>
+      <div class="cli-use"><span class="cli-use-icon">🚀</span> Pipeline CI/CD</div>
+      <div class="cli-use"><span class="cli-use-icon">🪟</span> Windows nativo</div>
+      <div class="cli-use"><span class="cli-use-icon">🐧</span> Linux / macOS</div>
+    </div>
+  </div>
+
+  <div class="features-list" style="margin-top:2.5rem;">
+    <div class="feature fade-in">
+      <div class="feature-badge">🔑</div>
+      <div>
+        <h3>Autenticación flexible</h3>
+        <p>GitHub, Google, AWS Builder ID, o IAM Identity Center. Múltiples opciones para encajar en cualquier organización.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🔌</div>
+      <div>
+        <h3>MCP compartido con IDE</h3>
+        <p>Los mismos MCP servers que configuras en <code>.kiro/settings/mcp.json</code> funcionan en CLI. No reconfiguras nada.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">📋</div>
+      <div>
+        <h3>Specs en CLI</h3>
+        <p>El agente de Specs funciona en terminal: genera requirements, design y tasks antes de codificar, igual que en el IDE.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">👁️</div>
+      <div>
+        <h3>Monitor de sub-agentes</h3>
+        <p>Con <code>Ctrl+G</code> ves el progreso de cada sub-agente en tiempo real: estado, trace completo y permisos solicitados.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     MODOS DE TRABAJO
+══════════════════════════════════════════ -->
+<section id="modos">
+  <div class="section-label">05 — Los 3 modos de trabajo</div>
+  <h2 class="fade-in">Vibe · Spec · <span class="gradient-text">AI-DLC</span></h2>
+  <p class="fade-in" style="max-width:720px; margin-top:1rem;">
+    Kiro ofrece tres modos que escalan en rigor. Cada uno tiene su momento y propósito. Hoy usamos Vibe para resultados inmediatos. A partir del Módulo 2, Spec. En el Módulo 11, el ciclo completo AI-DLC.
+  </p>
+
+  <div class="modes-grid">
+    <div class="mode-card vibe fade-in">
+      <div class="mode-tag">Activo hoy — M1</div>
+      <h3>💬 Vibe (Chat Agéntico)</h3>
+      <p>Exploración libre, prototipos rápidos, preguntas al agente. Conversación fluida sin estructura formal. Resultados inmediatos.</p>
+      <ul class="mode-details">
+        <li>Prototipado sin compromiso</li>
+        <li>Preguntas exploratorias sobre el código</li>
+        <li>Generación rápida sin plan previo</li>
+        <li>Ideal para aprender y experimentar</li>
+        <li>Se usa cuando no necesitas trazabilidad</li>
+      </ul>
+      <div class="mode-module">📍 Este workshop (Módulo 1)</div>
+    </div>
+    <div class="mode-card spec fade-in">
+      <div class="mode-tag">Módulo 2 en adelante</div>
+      <h3>📋 Spec (Desarrollo Estructurado)</h3>
+      <p>Desarrollo con especificación formal: requirements → design → tasks. El agente planifica antes de codificar.</p>
+      <ul class="mode-details">
+        <li>Requirements con EARS notation y acceptance criteria</li>
+        <li>Design con diagramas de secuencia y arquitectura</li>
+        <li>Tasks discretas, ejecutables y verificables</li>
+        <li>Ejecución en paralelo con dependency graph</li>
+        <li>Quick Plan para features simples</li>
+        <li>Bugfix Specs para bugs con prevención de regresiones</li>
+      </ul>
+      <div class="mode-module">📍 A partir del Módulo 2</div>
+    </div>
+    <div class="mode-card aidlc fade-in">
+      <div class="mode-tag">Módulo 11</div>
+      <h3>🔬 AI-DLC (AI-Driven Development Life Cycle)</h3>
+      <p>Ciclo completo y riguroso de desarrollo con IA. Máximo control, documentación y trazabilidad para producción enterprise.</p>
+      <ul class="mode-details">
+        <li>Ciclo completo: ideación → spec → implementación → testing → deploy</li>
+        <li>Auditoría y trazabilidad de cada decisión del agente</li>
+        <li>Compliance automático (SOC 2, HIPAA)</li>
+        <li>Integración con flujos de aprobación del equipo</li>
+        <li>Rigor de producción enterprise</li>
+      </ul>
+      <div class="mode-module">📍 Se verá en Módulo 11</div>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2.5rem;">
+    <p><strong style="color:var(--cyan-1);">Vibe</strong> es para explorar · <strong style="color:var(--purple-2);">Spec</strong> es para construir con calidad · <strong style="color:var(--text-main);">AI-DLC</strong> es para rigor de producción</p>
+    <div class="quote-source">— Principio rector de la capacitación</div>
+  </div>
+
+  <!-- Spec workflow diagram -->
+  <div class="arch-diagram fade-in" style="margin-top:2.5rem;">
+    <h3>Flujo del modo Spec (preview de lo que viene en M2)</h3>
+    <p style="font-size:.85rem; margin-top:.5rem; color:var(--text-muted);">Tres fases secuenciales con ejecución paralela de tasks</p>
+    <div class="arch-flow" style="margin-top:1.5rem;">
+      <div class="arch-node" style="background:rgba(168,85,247,0.2); border-color:var(--purple-2);">📋 Requirements</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="background:rgba(168,85,247,0.2); border-color:var(--purple-2);">🏗️ Design</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="background:rgba(168,85,247,0.2); border-color:var(--purple-2);">✅ Tasks</div>
+    </div>
+    <div class="arch-flow" style="margin-top:1rem;">
+      <div class="arch-node tool" style="font-size:.75rem;">Wave 1 (paralelo)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool" style="font-size:.75rem;">Wave 2 (paralelo)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool" style="font-size:.75rem;">Wave N (completo)</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     RESUMEN / TAKEAWAYS
+══════════════════════════════════════════ -->
+<section id="resumen">
+  <div class="section-label">06 — Resumen ejecutivo</div>
+  <h2 class="fade-in">Lo que debes recordar de <span class="gradient-text">esta sección</span></h2>
+
+  <div class="timeline fade-in" style="margin-top:2.5rem;">
+    <div class="timeline-item">
+      <h3>Kiro no es un IDE con IA — es una plataforma agéntica</h3>
+      <p>La diferencia clave es autonomía: los agentes planifican, ejecutan y verifican de forma independiente. Tú supervisas y tomas decisiones de diseño.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Arquitectura jerárquica: Orquestador → Sub-agentes → Herramientas</h3>
+      <p>El agente principal coordina. Los sub-agentes se especializan y ejecutan en paralelo. Las herramientas (MCP, terminal, file system) interactúan con el mundo.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Cada developer tiene su propio ejército de agentes</h3>
+      <p>Configurados en <code>.kiro/agents/</code>, son portables, versionables y compartibles. Cada agente tiene contexto, herramientas y reglas propias.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Kiro CLI: mismos agentes, en cualquier lugar</h3>
+      <p>Terminal local, GitHub Actions, cron, pipelines CI/CD. Con headless mode puedes automatizar completamente sin intervención humana.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Tres modos que escalan en rigor</h3>
+      <p><strong>Vibe</strong> (hoy) → <strong>Spec</strong> (M2+) → <strong>AI-DLC</strong> (M11). De exploración libre a rigor enterprise.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Spec-Driven Development: la unidad de trabajo es la especificación</h3>
+      <p>No un prompt suelto. Requirements + Design + Tasks — con verificación automática entre cada paso y ejecución paralela.</p>
+    </div>
+  </div>
+
+  <div class="card fade-in" style="margin-top:2.5rem; text-align:center;">
+    <div class="card-icon" style="margin:0 auto 1rem;">🎯</div>
+    <h3>Siguiente paso</h3>
+    <p style="max-width:500px; margin:0 auto;">Abre el archivo <code>1.2 plataforma-agentica.md</code> para el ejercicio práctico: crear tu primer agente custom que analiza código y genera un reporte de calidad.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <p>Capacitación Kiro · Bloque 1 · Módulo 1 · Sección 1.2 — Plataforma Agéntica</p>
+  <p style="margin-top:.5rem;">Fuentes: <a href="https://kiro.dev">kiro.dev</a> · <a href="https://kiro.dev/blog/introducing-kiro-cli/">Kiro CLI Blog</a> · <a href="https://kiro.dev/blog/cli-2-0/">CLI 2.0</a> · <a href="https://dzone.com/articles/kiro-feature-to-requirements-design-tasks">DZone</a></p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro IDE — Presentación Corporativa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:    #0a0b14;
+      --bg-card:    #111827;
+      --bg-card2:   #1a1f35;
+      --purple-1:   #7c3aed;
+      --purple-2:   #a855f7;
+      --cyan-1:     #06b6d4;
+      --cyan-2:     #22d3ee;
+      --text-main:  #f1f5f9;
+      --text-muted: #94a3b8;
+      --border:     rgba(124,58,237,0.25);
+      --glow:       rgba(124,58,237,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 3rem;
+      background: rgba(10,11,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--purple-2), var(--cyan-1));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: .875rem;
+      font-weight: 500; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cyan-2); }
+
+    /* ── SECTIONS ── */
+    section {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 7rem 3rem 4rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: .75rem; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--cyan-1);
+      margin-bottom: .75rem;
+    }
+
+    h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.1; }
+    h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; line-height: 1.2; }
+    h3 { font-size: 1.15rem; font-weight: 600; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--purple-2) 0%, var(--cyan-1) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    p { color: var(--text-muted); line-height: 1.75; font-size: 1rem; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh; max-width: 100%;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; padding: 7rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 900px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(124,58,237,0.15); border: 1px solid var(--border);
+      border-radius: 999px; padding: .35rem 1rem;
+      font-size: .8rem; font-weight: 600; color: var(--purple-2);
+      margin-bottom: 1.5rem; letter-spacing: .05em;
+    }
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--purple-2); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    #hero h1 { max-width: 900px; margin-bottom: 1.5rem; }
+    #hero p  { max-width: 620px; font-size: 1.15rem; margin-bottom: 2.5rem; }
+
+    .btn-primary {
+      display: inline-block; padding: .85rem 2.2rem;
+      background: linear-gradient(135deg, var(--purple-1), var(--purple-2));
+      color: #fff; font-weight: 700; font-size: .95rem;
+      border-radius: 8px; text-decoration: none;
+      box-shadow: 0 0 30px rgba(124,58,237,0.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 45px rgba(124,58,237,0.6); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 4rem;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; }
+    .stat-lbl { font-size: .8rem; color: var(--text-muted); margin-top: .25rem; }
+
+    /* ── CARDS ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: transform .25s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--purple-1), var(--cyan-1));
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px var(--glow); }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(124,58,237,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.25rem;
+    }
+    .card h3 { margin-bottom: .6rem; }
+    .card p  { font-size: .9rem; }
+
+    /* ── PROBLEM ── */
+    .problem-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;
+    }
+    .problem-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+    }
+    .problem-icon { font-size: 1.75rem; flex-shrink: 0; }
+    .problem-item h3 { margin-bottom: .4rem; }
+    .problem-item p  { font-size: .875rem; }
+
+    /* ── FEATURES ── */
+    .features-list {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .feature {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.75rem;
+      display: flex; gap: 1.25rem; align-items: flex-start;
+      transition: border-color .2s;
+    }
+    .feature:hover { border-color: var(--purple-2); }
+    .feature-badge {
+      background: linear-gradient(135deg, var(--purple-1), var(--cyan-1));
+      border-radius: 10px; padding: .6rem;
+      font-size: 1.25rem; flex-shrink: 0;
+    }
+    .feature h3 { margin-bottom: .4rem; font-size: 1rem; }
+    .feature p  { font-size: .85rem; }
+
+    /* ── COMPARISON ── */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin-top: 3rem;
+      border-radius: 16px; overflow: hidden;
+    }
+    .compare-table th, .compare-table td {
+      padding: 1rem 1.5rem; text-align: left; font-size: .9rem;
+    }
+    .compare-table thead tr { background: var(--bg-card2); }
+    .compare-table thead th { font-weight: 700; color: var(--text-main); }
+    .compare-table thead th:first-child { color: var(--text-muted); }
+    .compare-table thead th.kiro-col { color: var(--purple-2); }
+    .compare-table tbody tr { border-top: 1px solid var(--border); }
+    .compare-table tbody tr:nth-child(even) { background: rgba(17,24,39,0.5); }
+    .compare-table td:first-child { color: var(--text-muted); font-weight: 500; }
+    .check { color: #4ade80; font-size: 1.1rem; }
+    .cross { color: #f87171; font-size: 1.1rem; }
+    .partial { color: #fbbf24; font-size: .85rem; }
+
+    /* ── CTA ── */
+    #cta {
+      min-height: 60vh; max-width: 100%;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; padding: 6rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute; bottom: -300px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #cta h2 { max-width: 700px; margin-bottom: 1rem; }
+    #cta p  { max-width: 520px; margin-bottom: 2.5rem; font-size: 1.05rem; }
+    .btn-outline {
+      display: inline-block; padding: .85rem 2.2rem;
+      border: 2px solid var(--cyan-1); color: var(--cyan-1);
+      font-weight: 700; font-size: .95rem; border-radius: 8px;
+      text-decoration: none; margin-left: 1rem;
+      transition: background .2s, color .2s;
+    }
+    .btn-outline:hover { background: var(--cyan-1); color: var(--bg-deep); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted); font-size: .8rem;
+    }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 auto;
+    }
+
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 6rem 1.5rem 3rem; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAV
+══════════════════════════════════════════ -->
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#que-es">¿Qué es?</a></li>
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#caracteristicas">Características</a></li>
+    <li><a href="#comparacion">vs Claude Code</a></li>
+    <li><a href="#cta">Empezar</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Lanzado por Amazon Web Services · 2025</div>
+  <h1 class="fade-in">El IDE que convierte<br /><span class="gradient-text">ideas en producción</span></h1>
+  <p class="fade-in">Kiro es el entorno de desarrollo impulsado por IA de AWS que lleva el desarrollo ágil al siguiente nivel: del prompt al código listo para producción, con rigor de ingeniería.</p>
+  <a href="#que-es" class="btn-primary fade-in">Conocer Kiro →</a>
+  <div class="hero-stats fade-in">
+    <div class="stat">
+      <div class="stat-num gradient-text">Claude&nbsp;</div>
+      <div class="stat-lbl">Modelo base (Sonnet)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num gradient-text">VS Code</div>
+      <div class="stat-lbl">Construido sobre OSS</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num gradient-text">MCP</div>
+      <div class="stat-lbl">Integración de herramientas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num gradient-text">AWS</div>
+      <div class="stat-lbl">Ecosistema nativo</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     QUÉ ES KIRO
+══════════════════════════════════════════ -->
+<section id="que-es">
+  <div class="section-label">01 — Definición</div>
+  <h2 class="fade-in">¿Qué es <span class="gradient-text">Kiro</span>?</h2>
+  <p class="fade-in" style="max-width:680px; margin-top:1rem;">
+    Kiro es un IDE agéntico lanzado por Amazon Web Services en julio de 2025. Está construido sobre VS Code OSS y potenciado por los modelos Claude de Anthropic. Su propósito central es cerrar la brecha entre el "vibe coding" (prototipos rápidos con IA) y el software de producción real, aplicando rigor de ingeniería a cada paso del desarrollo.
+  </p>
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🧠</div>
+      <h3>Agente con contexto completo</h3>
+      <p>Kiro entiende tu proyecto completo: archivos, dependencias, historial y convenciones. No solo completa líneas, razona sobre el sistema.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📋</div>
+      <h3>Desarrollo guiado por especificaciones</h3>
+      <p>Transforma lenguaje natural en requisitos, diseño y lista de tareas antes de escribir una sola línea de código.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔗</div>
+      <h3>Ecosistema AWS nativo</h3>
+      <p>Integración directa con Lambda, DynamoDB, CloudWatch, SageMaker y más. Infraestructura como código con CDK, SAM o Terraform.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔒</div>
+      <h3>Privacidad primero</h3>
+      <p>Arquitectura de seguridad que no entrena modelos con tu código. Tu propiedad intelectual permanece tuya.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     PROBLEMA
+══════════════════════════════════════════ -->
+<section id="problema">
+  <div class="section-label">02 — El Problema</div>
+  <h2 class="fade-in">El desarrollo con IA tiene <span class="gradient-text">fricciones reales</span></h2>
+  <p class="fade-in" style="max-width:680px; margin-top:1rem;">
+    Las herramientas de IA actuales aceleran la escritura de código, pero crean nuevos problemas que frenan a los equipos de ingeniería.
+  </p>
+  <div class="problem-grid">
+    <div class="problem-item fade-in">
+      <div class="problem-icon">🌀</div>
+      <div>
+        <h3>Código sin documentación</h3>
+        <p>El código generado por IA rara vez incluye contexto de decisiones de diseño, creando deuda técnica invisible desde el primer commit.</p>
+      </div>
+    </div>
+    <div class="problem-item fade-in">
+      <div class="problem-icon">🎯</div>
+      <div>
+        <h3>Prompts imprecisos = resultados impredecibles</h3>
+        <p>Sin una especificación clara, el agente interpreta la intención del desarrollador de forma diferente en cada sesión.</p>
+      </div>
+    </div>
+    <div class="problem-item fade-in">
+      <div class="problem-icon">🔄</div>
+      <div>
+        <h3>Iteraciones infinitas</h3>
+        <p>Sin un plan estructurado, los equipos pasan más tiempo corrigiendo el output de la IA que construyendo funcionalidades reales.</p>
+      </div>
+    </div>
+    <div class="problem-item fade-in">
+      <div class="problem-icon">🏗️</div>
+      <div>
+        <h3>Prototipos que no escalan</h3>
+        <p>El "vibe coding" produce demos funcionales pero frágiles. Llevarlos a producción requiere reescrituras completas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     CARACTERÍSTICAS
+══════════════════════════════════════════ -->
+<section id="caracteristicas">
+  <div class="section-label">03 — Características</div>
+  <h2 class="fade-in">Todo lo que necesitas para <span class="gradient-text">construir en serio</span></h2>
+  <p class="fade-in" style="max-width:680px; margin-top:1rem;">
+    Kiro combina la velocidad del desarrollo asistido por IA con las prácticas de ingeniería que los equipos profesionales necesitan.
+  </p>
+  <div class="features-list">
+    <div class="feature fade-in">
+      <div class="feature-badge">📝</div>
+      <div>
+        <h3>Modo Spec (Especificaciones)</h3>
+        <p>Define tu intención en lenguaje natural. Kiro genera automáticamente requisitos, documento de diseño y lista de tareas antes de escribir código.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">💬</div>
+      <div>
+        <h3>Modo Vibe (Chat agéntico)</h3>
+        <p>Conversación fluida con el agente para exploración, preguntas sobre el código y generación rápida sin estructura formal.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🤖</div>
+      <div>
+        <h3>Autopilot & Supervised</h3>
+        <p>Autopilot ejecuta tareas end-to-end de forma autónoma. Supervised presenta cada cambio como hunk individual para aprobación granular.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">⚡</div>
+      <div>
+        <h3>Hooks agénticos</h3>
+        <p>Automatizaciones event-driven: al guardar un archivo, crear uno nuevo o completar una tarea, el agente ejecuta acciones en segundo plano.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🧭</div>
+      <div>
+        <h3>Steering (Directrices)</h3>
+        <p>Archivos de contexto persistente que inyectan estándares del equipo, convenciones de código y guías de arquitectura en cada interacción.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">🔌</div>
+      <div>
+        <h3>MCP (Model Context Protocol)</h3>
+        <p>Conecta el agente con APIs externas, bases de datos y servicios de forma segura. Extiende las capacidades de Kiro sin límites.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">☁️</div>
+      <div>
+        <h3>Integración AWS profunda</h3>
+        <p>Genera código para Lambda, diseña esquemas DynamoDB, analiza logs de CloudWatch y conecta con SageMaker sin salir del IDE.</p>
+      </div>
+    </div>
+    <div class="feature fade-in">
+      <div class="feature-badge">📚</div>
+      <div>
+        <h3>Documentación en tiempo real</h3>
+        <p>Mantiene la documentación sincronizada con el código automáticamente. Cada cambio queda registrado con su contexto de decisión.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     COMPARACIÓN vs CLAUDE CODE
+══════════════════════════════════════════ -->
+<section id="comparacion">
+  <div class="section-label">04 — Comparación</div>
+  <h2 class="fade-in">Kiro vs <span class="gradient-text">Claude Code</span></h2>
+  <p class="fade-in" style="max-width:680px; margin-top:1rem;">
+    Ambas herramientas usan modelos Claude de Anthropic, pero su filosofía de trabajo es radicalmente diferente. La elección depende del perfil del equipo y el tipo de proyecto.
+  </p>
+  <table class="compare-table fade-in">
+    <thead>
+      <tr>
+        <th>Criterio</th>
+        <th class="kiro-col">⬡ Kiro</th>
+        <th>Claude Code</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Entorno de trabajo</td>
+        <td>IDE visual (VS Code OSS)</td>
+        <td>Terminal / CLI</td>
+      </tr>
+      <tr>
+        <td>Curva de aprendizaje</td>
+        <td><span class="check">✓</span> Baja — interfaz familiar</td>
+        <td><span class="partial">~ Requiere dominio de terminal</span></td>
+      </tr>
+      <tr>
+        <td>Desarrollo guiado por specs</td>
+        <td><span class="check">✓</span> Nativo y estructurado</td>
+        <td><span class="cross">✗</span> No incluido</td>
+      </tr>
+      <tr>
+        <td>Automatizaciones (Hooks)</td>
+        <td><span class="check">✓</span> Event-driven integrado</td>
+        <td><span class="cross">✗</span> Manual / scripts externos</td>
+      </tr>
+      <tr>
+        <td>Directrices de equipo (Steering)</td>
+        <td><span class="check">✓</span> Archivos de contexto persistente</td>
+        <td><span class="partial">~ CLAUDE.md básico</span></td>
+      </tr>
+      <tr>
+        <td>Integración AWS</td>
+        <td><span class="check">✓</span> Nativa y profunda</td>
+        <td><span class="partial">~ Vía MCP / manual</span></td>
+      </tr>
+      <tr>
+        <td>Control granular de cambios</td>
+        <td><span class="check">✓</span> Modo Supervised (hunk a hunk)</td>
+        <td><span class="check">✓</span> Plan Mode</td>
+      </tr>
+      <tr>
+        <td>Soporte multi-modelo</td>
+        <td><span class="check">✓</span> Claude Sonnet 3.7 / 4.0</td>
+        <td><span class="check">✓</span> Claude Opus / Sonnet</td>
+      </tr>
+      <tr>
+        <td>Ideal para</td>
+        <td>Equipos con flujos estructurados</td>
+        <td>Devs avanzados en terminal</td>
+      </tr>
+      <tr>
+        <td>Documentación automática</td>
+        <td><span class="check">✓</span> Sincronizada en tiempo real</td>
+        <td><span class="cross">✗</span> No incluida</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="fade-in" style="margin-top:1.5rem; font-size:.875rem; color:var(--text-muted);">
+    Fuentes: <a href="https://rundatarun.io/p/the-battle-for-ai-powered-development" style="color:var(--cyan-1);">rundatarun.io</a> · 
+    <a href="https://tao-hpu.medium.com/kiro-vs-claude-code-architecture-as-philosophy-in-ai-assisted-development-dced10340512" style="color:var(--cyan-1);">medium.com</a> · 
+    <a href="https://kiro.dev/blog/introducing-kiro/" style="color:var(--cyan-1);">kiro.dev</a>
+  </p>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════════
+     CTA
+══════════════════════════════════════════ -->
+<section id="cta">
+  <div class="section-label">05 — Próximos pasos</div>
+  <h2 class="fade-in">¿Listo para llevar tu equipo al <span class="gradient-text">siguiente nivel</span>?</h2>
+  <p class="fade-in">
+    Kiro no es solo un asistente de código. Es un cambio de paradigma en cómo los equipos de ingeniería diseñan, construyen y mantienen software con IA.
+  </p>
+  <div class="fade-in">
+    <a href="https://kiro.dev" target="_blank" class="btn-primary">Ir a kiro.dev →</a>
+    <a href="https://kiro.dev/blog/introducing-kiro/" target="_blank" class="btn-outline">Leer más</a>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <p>Presentación elaborada con información pública de <a href="https://kiro.dev" style="color:var(--cyan-1);">kiro.dev</a> y AWS · Mayo 2026</p>
+</footer>
+
+<script>
+  // Intersection Observer para animaciones fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
