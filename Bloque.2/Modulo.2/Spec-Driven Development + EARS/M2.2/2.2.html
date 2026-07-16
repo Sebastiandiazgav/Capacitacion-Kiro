@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — Metodología EARS: 6 Patrones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:700px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    .quote-block .quote-source{font-size:.8rem;font-style:normal;color:var(--text-muted);margin-top:.75rem}
+    /* PATTERN CARDS */
+    .pattern-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2rem;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+    .pattern-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px var(--glow)}
+    .pattern-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .pattern-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+    .pattern-number{background:linear-gradient(135deg,var(--purple-1),var(--cyan-1));color:#fff;font-weight:800;font-size:1.1rem;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .pattern-name{font-size:1.3rem;font-weight:700}
+    .pattern-template{background:#0d1117;border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0;font-family:'Courier New',monospace;font-size:.9rem;line-height:1.6;color:var(--text-muted);border:1px solid rgba(6,182,212,0.2)}
+    .pattern-template .kw{color:var(--cyan-2);font-weight:700}
+    .pattern-template .sys{color:var(--purple-2);font-weight:600}
+    .pattern-example{background:var(--bg-card2);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin-top:1rem}
+    .pattern-example-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan-1);margin-bottom:.5rem}
+    .pattern-example p{font-size:.9rem;color:var(--text-main);font-style:normal;line-height:1.6}
+    .pattern-example .kw{color:var(--cyan-2);font-weight:700}
+    .pattern-example .sys{color:var(--purple-2);font-weight:600}
+    .pattern-when{font-size:.85rem;color:var(--text-muted);margin-top:1rem;padding:1rem;background:rgba(124,58,237,0.08);border-radius:8px}
+    .pattern-when strong{color:var(--text-main)}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    .timeline{position:relative;margin-top:3rem;padding-left:2rem}
+    .timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--purple-1),var(--cyan-1))}
+    .timeline-item{position:relative;margin-bottom:2.5rem;padding-left:2rem}
+    .timeline-item::before{content:'';position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep)}
+    .timeline-item h3{margin-bottom:.3rem}
+    .timeline-item p{font-size:.875rem}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#origen">Origen</a></li>
+    <li><a href="#estructura">Estructura</a></li>
+    <li><a href="#patrones">6 Patrones</a></li>
+    <li><a href="#kiro">Reglas</a></li>
+    <li><a href="#kiro-integration">En Kiro</a></li>
+    <li><a href="#resumen">Resumen</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 2 · Sección 2.2</div>
+  <h1 class="fade-in">Metodología EARS<br /><span class="gradient-text">6 Patrones para Requirements</span></h1>
+  <p class="fade-in">EARS (Easy Approach to Requirements Syntax) proporciona plantillas estructuradas que eliminan la ambigüedad en requerimientos. Desarrollada por Rolls-Royce para sistemas de aviación, adoptada por NASA, Intel, Airbus, Bosch — y ahora integrada nativamente en Kiro.</p>
+  <a href="#origen" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ORIGEN Y POR QUÉ -->
+<section id="origen">
+  <div class="section-label">01 — Origen y por qué importa</div>
+  <h2 class="fade-in">De la aviación al <span class="gradient-text">desarrollo con IA</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    EARS fue creada en 2009 por Alistair Mavin en Rolls-Royce mientras analizaba regulaciones de aeronavegabilidad para motores jet. Observó que los requirements bien escritos siempre seguían una estructura similar — y la formalizó. Publicada en IEEE RE'09, ha sido adoptada por organizaciones como NASA, Intel, Airbus, Bosch, Honeywell, Dyson y Siemens.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>El problema que resuelve</h3>
+      <p>El lenguaje natural libre es ambiguo. "El sistema debe ser rápido" — ¿qué es rápido? ¿100ms? ¿1 segundo? EARS fuerza precisión con templates estructurados que eliminan vaaguedad.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🤖</div>
+      <h3>¿Por qué importa con IA?</h3>
+      <p>La IA puede validar estructura EARS automáticamente (es parseable). Pero <strong>no puede detectar ambigüedad</strong> en lenguaje natural libre. EARS hace que tus requirements sean machine-readable.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📐</div>
+      <h3>Punto medio perfecto</h3>
+      <p>EARS ocupa el terreno medio entre lenguaje informal (ambiguo) y lenguajes formales (difíciles de leer). Cualquier stakeholder lo entiende sin entrenamiento especial.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">✅</div>
+      <h3>Testabilidad inherente</h3>
+      <p>La separación explícita de condiciones y respuestas hace trivial derivar test cases. Cada requirement EARS se convierte directamente en un test verificable.</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in">
+    <p>"EARS ocupa un terreno medio entre el lenguaje informal y los lenguajes formales: retiene lenguaje natural para que todos los stakeholders puedan leer y revisar requirements sin entrenamiento especializado, mientras impone suficiente estructura sintáctica para eliminar los defectos más comunes como ambigüedad, vaguedad e incompletitud."</p>
+    <div class="quote-source">— Basado en Mavin et al., "Easy Approach to Requirements Syntax", IEEE RE'09. Contenido parafraseado para esta capacitación.</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ESTRUCTURA GENERAL -->
+<section id="estructura">
+  <div class="section-label">02 — Estructura general EARS</div>
+  <h2 class="fade-in">Anatomía de un <span class="gradient-text">requirement EARS</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Todo requirement EARS sigue una estructura fija con orden temporal. Las cláusulas siempre aparecen en el mismo orden, y un conjunto limitado de keywords denota los tipos de cláusula.
+  </p>
+
+  <div class="pattern-card fade-in" style="margin-top:2rem;">
+    <div class="pattern-header">
+      <div class="pattern-number">★</div>
+      <div class="pattern-name">Estructura general</div>
+    </div>
+    <div class="pattern-template">
+      <span class="kw">WHILE</span> &lt;precondición(es) opcionales&gt;, <span class="kw">WHEN</span> &lt;trigger opcional&gt;, <span class="sys">the &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-when">
+      <strong>Reglas del ruleset EARS:</strong><br/>
+      • Cero o muchas precondiciones<br/>
+      • Cero o un trigger<br/>
+      • Exactamente un nombre de sistema<br/>
+      • Una o muchas respuestas del sistema<br/>
+      • Las cláusulas siempre en el mismo orden temporal
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔑</div>
+      <h3>Keywords clave</h3>
+      <p><strong style="color:var(--cyan-2)">SHALL</strong> = obligatorio, siempre presente. <strong style="color:var(--cyan-2)">WHEN</strong> = trigger. <strong style="color:var(--cyan-2)">WHILE</strong> = estado. <strong style="color:var(--cyan-2)">WHERE</strong> = feature opcional. <strong style="color:var(--cyan-2)">IF/THEN</strong> = error handling.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⏱️</div>
+      <h3>Orden temporal fijo</h3>
+      <p>Precondiciones primero (WHILE), luego trigger (WHEN), luego el sistema y su respuesta (SHALL). Nunca se altera este orden.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧪</div>
+      <h3>De requirement a test</h3>
+      <p>Cada EARS se traduce directamente: precondiciones = setup del test, trigger = acción, SHALL = assertion. El test se escribe solo.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- LOS 6 PATRONES -->
+<section id="patrones">
+  <div class="section-label">03 — Los 6 patrones EARS</div>
+  <h2 class="fade-in">Templates que eliminan <span class="gradient-text">la ambigüedad</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Cada patrón cubre un tipo específico de comportamiento del sistema. Los ejemplos están contextualizados al proyecto de Knowledge Base de documentación interna de AFP UNO.
+  </p>
+
+  <!-- PATRÓN 1: UBIQUITOUS -->
+  <div class="pattern-card fade-in">
+    <div class="pattern-header">
+      <div class="pattern-number">1</div>
+      <div class="pattern-name">Ubiquitous (Ubicuo)</div>
+    </div>
+    <p style="margin-bottom:1rem;">Requirement que <strong>siempre está activo</strong>. No tiene condición ni trigger — aplica en todo momento sin excepción. Es el más simple de los patrones.</p>
+    <div class="pattern-template">
+      <span class="sys">The &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-example">
+      <div class="pattern-example-label">Ejemplo — Desarrollo de software</div>
+      <p>"<span class="sys">El servicio de autenticación</span> <span class="kw">SHALL</span> encriptar todas las contraseñas con bcrypt usando un mínimo de 12 rounds."</p>
+    </div>
+    <div class="pattern-example" style="margin-top:.75rem;">
+      <div class="pattern-example-label">Ejemplo AFP UNO — Knowledge Base</div>
+      <p>"<span class="sys">El sistema de Knowledge Base</span> <span class="kw">SHALL</span> indexar todo documento nuevo en un máximo de 60 segundos."</p>
+    </div>
+    <div class="pattern-when">
+      <strong>Cuándo usarlo:</strong> Para restricciones que aplican siempre, sin condiciones. Tiempos de respuesta, límites de peso, capacidades mínimas, restricciones de seguridad permanentes.
+    </div>
+  </div>
+
+  <!-- PATRÓN 2: EVENT-DRIVEN -->
+  <div class="pattern-card fade-in">
+    <div class="pattern-header">
+      <div class="pattern-number">2</div>
+      <div class="pattern-name">Event-Driven (Dirigido por eventos)</div>
+    </div>
+    <p style="margin-bottom:1rem;">Requirement que se activa <strong>cuando ocurre un evento específico</strong>. El sistema responde a un trigger concreto. Keyword: <strong style="color:var(--cyan-2)">WHEN</strong>.</p>
+    <div class="pattern-template">
+      <span class="kw">WHEN</span> &lt;trigger&gt;, <span class="sys">the &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-example">
+      <div class="pattern-example-label">Ejemplo — Desarrollo de software</div>
+      <p>"<span class="kw">WHEN</span> el usuario envía el formulario de registro, <span class="sys">el sistema de onboarding</span> <span class="kw">SHALL</span> enviar un correo de verificación en un máximo de 10 segundos."</p>
+    </div>
+    <div class="pattern-example" style="margin-top:.75rem;">
+      <div class="pattern-example-label">Ejemplo AFP UNO — Knowledge Base</div>
+      <p>"<span class="kw">WHEN</span> un usuario consulta la KB, <span class="sys">el sistema</span> <span class="kw">SHALL</span> responder con fuentes citadas del documento original en un máximo de 5 segundos."</p>
+    </div>
+    <div class="pattern-when">
+      <strong>Cuándo usarlo:</strong> Para comportamientos reactivos: el usuario hace algo → el sistema responde. Clicks, envíos de formularios, llegada de datos, señales externas.
+    </div>
+  </div>
+
+  <!-- PATRÓN 3: STATE-DRIVEN -->
+  <div class="pattern-card fade-in">
+    <div class="pattern-header">
+      <div class="pattern-number">3</div>
+      <div class="pattern-name">State-Driven (Dirigido por estado)</div>
+    </div>
+    <p style="margin-bottom:1rem;">Requirement activo <strong>mientras un estado persista</strong>. A diferencia de Event-Driven (un instante), State-Driven aplica durante toda la duración de una condición. Keyword: <strong style="color:var(--cyan-2)">WHILE</strong>.</p>
+    <div class="pattern-template">
+      <span class="kw">WHILE</span> &lt;precondición/estado&gt;, <span class="sys">the &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-example">
+      <div class="pattern-example-label">Ejemplo — Desarrollo de software</div>
+      <p>"<span class="kw">WHILE</span> el servicio de pagos está en modo mantenimiento, <span class="sys">el sistema</span> <span class="kw">SHALL</span> mostrar un mensaje informativo y deshabilitar el botón de pago."</p>
+    </div>
+    <div class="pattern-example" style="margin-top:.75rem;">
+      <div class="pattern-example-label">Ejemplo AFP UNO — Knowledge Base</div>
+      <p>"<span class="kw">WHILE</span> el sistema procesa una indexación masiva, <span class="sys">el sistema</span> <span class="kw">SHALL</span> mantener respuestas a consultas con latencia inferior a 3 segundos."</p>
+    </div>
+    <div class="pattern-when">
+      <strong>Cuándo usarlo:</strong> Para comportamientos que deben mantenerse durante un estado: modo mantenimiento, carga pesada, conexión activa, sesión abierta, proceso en ejecución.
+    </div>
+  </div>
+
+  <!-- PATRÓN 4: OPTIONAL FEATURE -->
+  <div class="pattern-card fade-in">
+    <div class="pattern-header">
+      <div class="pattern-number">4</div>
+      <div class="pattern-name">Optional Feature (Feature opcional)</div>
+    </div>
+    <p style="margin-bottom:1rem;">Requirement que aplica <strong>solo si una feature específica está habilitada</strong> en el sistema o producto. No todos los clientes/instancias la tienen. Keyword: <strong style="color:var(--cyan-2)">WHERE</strong>.</p>
+    <div class="pattern-template">
+      <span class="kw">WHERE</span> &lt;feature está incluida&gt;, <span class="sys">the &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-example">
+      <div class="pattern-example-label">Ejemplo — Desarrollo de software</div>
+      <p>"<span class="kw">WHERE</span> la organización tiene habilitada la autenticación multifactor, <span class="sys">el sistema de login</span> <span class="kw">SHALL</span> solicitar un código OTP después de validar las credenciales."</p>
+    </div>
+    <div class="pattern-example" style="margin-top:.75rem;">
+      <div class="pattern-example-label">Ejemplo AFP UNO — Knowledge Base</div>
+      <p>"<span class="kw">WHERE</span> la organización tiene documentos con nivel de acceso restringido, <span class="sys">el sistema</span> <span class="kw">SHALL</span> verificar permisos del usuario antes de incluirlos en respuestas."</p>
+    </div>
+    <div class="pattern-when">
+      <strong>Cuándo usarlo:</strong> Para funcionalidades que no todos tienen: módulos premium, configuraciones opcionales, variantes de producto, features por tenant/organización.
+    </div>
+  </div>
+
+  <!-- PATRÓN 5: UNWANTED BEHAVIOR -->
+  <div class="pattern-card fade-in">
+    <div class="pattern-header">
+      <div class="pattern-number">5</div>
+      <div class="pattern-name">Unwanted Behavior (Comportamiento no deseado)</div>
+    </div>
+    <p style="margin-bottom:1rem;">Requirement que especifica cómo el sistema debe responder ante <strong>situaciones no deseadas</strong>: errores, fallos, inputs inválidos, edge cases. Keywords: <strong style="color:var(--cyan-2)">IF / THEN</strong>.</p>
+    <div class="pattern-template">
+      <span class="kw">IF</span> &lt;condición no deseada&gt;, <span class="kw">THEN</span> <span class="sys">the &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-example">
+      <div class="pattern-example-label">Ejemplo — Desarrollo de software</div>
+      <p>"<span class="kw">IF</span> la API de pagos retorna timeout después de 30 segundos, <span class="kw">THEN</span> <span class="sys">el sistema</span> <span class="kw">SHALL</span> reintentar la operación una vez y notificar al usuario si falla de nuevo."</p>
+    </div>
+    <div class="pattern-example" style="margin-top:.75rem;">
+      <div class="pattern-example-label">Ejemplo AFP UNO — Knowledge Base</div>
+      <p>"<span class="kw">IF</span> la consulta del usuario no tiene documentos relevantes en la KB, <span class="kw">THEN</span> <span class="sys">el sistema</span> <span class="kw">SHALL</span> responder indicando que no encontró información y sugerir reformular la pregunta."</p>
+    </div>
+    <div class="pattern-when">
+      <strong>Cuándo usarlo:</strong> Para error handling, fallbacks, validaciones, timeouts, inputs inválidos, desconexiones, pérdida de datos, situaciones de borde. Es el patrón de la resiliencia.
+    </div>
+  </div>
+
+  <!-- PATRÓN 6: COMPLEX -->
+  <div class="pattern-card fade-in">
+    <div class="pattern-header">
+      <div class="pattern-number">6</div>
+      <div class="pattern-name">Complex (Combinado)</div>
+    </div>
+    <p style="margin-bottom:1rem;">Combina múltiples keywords EARS para escenarios <strong>multi-condición</strong>. Usa WHILE + WHEN + IF en la misma sentencia. Para los requirements más ricos y específicos.</p>
+    <div class="pattern-template">
+      <span class="kw">WHILE</span> &lt;estado&gt;, <span class="kw">WHEN</span> &lt;trigger&gt;, <span class="kw">IF</span> &lt;condición&gt;, <span class="kw">THEN</span> <span class="sys">the &lt;sistema&gt;</span> <span class="kw">SHALL</span> &lt;respuesta del sistema&gt;
+    </div>
+    <div class="pattern-example">
+      <div class="pattern-example-label">Ejemplo — Desarrollo de software</div>
+      <p>"<span class="kw">WHILE</span> el sistema procesa transacciones en batch nocturno, <span class="kw">WHEN</span> un registro tiene formato inválido, <span class="kw">IF</span> el error afecta más del 5% del batch, <span class="kw">THEN</span> <span class="sys">el sistema</span> <span class="kw">SHALL</span> pausar el procesamiento y alertar al equipo de operaciones."</p>
+    </div>
+    <div class="pattern-example" style="margin-top:.75rem;">
+      <div class="pattern-example-label">Ejemplo AFP UNO — Knowledge Base</div>
+      <p>"<span class="kw">WHILE</span> el RAG procesa consultas concurrentes, <span class="kw">WHEN</span> un usuario consulta documentos restringidos, <span class="kw">IF</span> el usuario no tiene nivel de acceso suficiente, <span class="kw">THEN</span> <span class="sys">el sistema</span> <span class="kw">SHALL</span> retornar solo los fragmentos de documentos públicos relevantes."</p>
+    </div>
+    <div class="pattern-when">
+      <strong>Cuándo usarlo:</strong> Para escenarios complejos con múltiples condiciones simultáneas. Usa con moderación — si tiene más de 3 precondiciones, considera dividir en múltiples requirements.
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EARS EN KIRO -->
+<section id="kiro">
+  <div class="section-label">04 — Reglas de oro EARS</div>
+  <h2 class="fade-in">Reglas que todo developer <span class="gradient-text">debe memorizar</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Más allá de los 6 patrones, EARS tiene reglas de escritura que garantizan precisión. Estas reglas vienen de 15 años de aplicación industrial (Rolls-Royce, Intel, NASA) y están respaldadas por papers académicos en IEEE.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">1️⃣</div>
+      <h3>Siempre usa SHALL</h3>
+      <p>Nunca "should", "may", "might", "will", "can" o "must". <strong style="color:var(--cyan-2)">SHALL</strong> es la única palabra que indica obligatoriedad sin ambigüedad en EARS.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">2️⃣</div>
+      <h3>Nombra el sistema explícitamente</h3>
+      <p>Nunca "el sistema" genérico, "it" o "la aplicación". Sé preciso: "el servicio de cotizaciones", "la API de afiliados", "el módulo de autenticación".</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">3️⃣</div>
+      <h3>Un requirement por sentencia</h3>
+      <p>Si tu requirement tiene "y" conectando dos comportamientos diferentes, divídelo en dos requirements separados. Cada EARS = un comportamiento verificable.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">4️⃣</div>
+      <h3>WHEN e IF son mutuamente excluyentes</h3>
+      <p><strong style="color:var(--cyan-2)">WHEN</strong> = evento esperado (usuario hace algo). <strong style="color:var(--cyan-2)">IF</strong> = situación no deseada (error, fallo). Nunca ambos en el mismo requirement simple.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">5️⃣</div>
+      <h3>Respuestas observables y testeables</h3>
+      <p>El SHALL debe describir algo que puedes verificar: un mensaje, un tiempo de respuesta, un estado, un dato guardado. Nunca "el sistema shall ser rápido".</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">6️⃣</div>
+      <h3>Máximo 3 precondiciones</h3>
+      <p>Si necesitas más de 3 WHILE/WHEN/IF, el requirement es demasiado complejo. Divídelo o usa una tabla de decisión en el design.md.</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p>"WHEN introduce un evento esperado. IF...THEN introduce un evento no deseado o de falla. Describen tipos diferentes de triggers y no co-ocurren en un requirement simple."</p>
+    <div class="quote-source">— Regla EARS, documentada en aplicaciones industriales. Contenido parafraseado para compliance.</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EARS EN KIRO (integración) -->
+<section id="kiro-integration">
+  <div class="section-label">05 — EARS en Kiro</div>
+  <h2 class="fade-in">Cómo Kiro usa EARS <span class="gradient-text">nativamente</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Desde 2025, Kiro adoptó EARS como su notación nativa para requirements. Cuando creas una spec, Kiro genera automáticamente acceptance criteria en formato EARS. Los keywords (WHEN, WHILE, WHERE, IF/THEN, SHALL) son parseados para verificar automáticamente que el código cumple cada criterio.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🔄</div>
+      <h3>Generación automática</h3>
+      <p>Describes tu feature en lenguaje natural. Kiro expande tu descripción en user stories con acceptance criteria escritos en notación EARS — capturando edge cases que no pensaste.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">✅</div>
+      <h3>Validación parseable</h3>
+      <p>Los keywords EARS son machine-readable. Kiro puede verificar automáticamente si una task implementa correctamente el requirement porque la estructura es predecible.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧪</div>
+      <h3>De EARS a test cases</h3>
+      <p>WHILE = test setup. WHEN = action. SHALL = assertion. Kiro puede generar tests directamente desde los acceptance criteria EARS — sin intervención humana.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📋</div>
+      <h3>En requirements.md</h3>
+      <p>Los acceptance criteria en el archivo <code>.kiro/specs/&lt;feature&gt;/requirements.md</code> siguen notación EARS. Puedes editarlos, refinarlos o agregar más manualmente.</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p>"Kiro genera requirements EARS automáticamente, pero tú los escribirás y editarás frecuentemente. Los patrones valen la pena memorizarlos."</p>
+    <div class="quote-source">— Referencia adaptada de documentación pública sobre Kiro y EARS</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- RESUMEN -->
+<section id="resumen">
+  <div class="section-label">06 — Resumen ejecutivo</div>
+  <h2 class="fade-in">Lo que debes recordar de <span class="gradient-text">EARS</span></h2>
+
+  <div class="timeline fade-in" style="margin-top:2.5rem;">
+    <div class="timeline-item">
+      <h3>EARS elimina ambigüedad con plantillas simples</h3>
+      <p>6 patrones, un puñado de keywords (SHALL, WHEN, WHILE, WHERE, IF/THEN), estructura fija. Cualquiera puede leerlos sin entrenamiento.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Cada patrón cubre un tipo de comportamiento</h3>
+      <p>Ubiquitous (siempre), Event-Driven (cuando pasa algo), State-Driven (mientras dure un estado), Optional (si la feature existe), Unwanted (errores), Complex (combinaciones).</p>
+    </div>
+    <div class="timeline-item">
+      <h3>De requirement a test = automático</h3>
+      <p>WHILE → setup, WHEN → action, SHALL → assertion. Los tests se derivan directamente de los EARS sin interpretación humana.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Kiro genera EARS automáticamente</h3>
+      <p>Al crear una spec, Kiro escribe acceptance criteria en notación EARS. Puedes editar y refinar, pero la estructura siempre se mantiene.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>La IA valida estructura, no semántica</h3>
+      <p>EARS hace los requirements parseables y verificables por máquina. Sin EARS, la IA no puede distinguir un requirement bueno de uno ambiguo.</p>
+    </div>
+    <div class="timeline-item">
+      <h3>Limitación: no fuerces todo en EARS</h3>
+      <p>Requirements con más de 3 precondiciones se vuelven ilegibles. Para esos casos, usa tablas de decisión, diagramas de estado o fórmulas. EARS no es dogma.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in" style="text-align:center;">
+      <div class="card-icon" style="margin:0 auto 1rem;">📝</div>
+      <h3>Guía rápida de selección</h3>
+      <p style="text-align:left;">
+        <strong style="color:var(--cyan-2)">Siempre activo</strong> → Ubiquitous<br/>
+        <strong style="color:var(--cyan-2)">Reacciona a algo</strong> → Event-Driven (WHEN)<br/>
+        <strong style="color:var(--cyan-2)">Mientras dure algo</strong> → State-Driven (WHILE)<br/>
+        <strong style="color:var(--cyan-2)">Solo si existe la feature</strong> → Optional (WHERE)<br/>
+        <strong style="color:var(--cyan-2)">Manejo de errores</strong> → Unwanted (IF/THEN)<br/>
+        <strong style="color:var(--cyan-2)">Multi-condición</strong> → Complex (combinación)
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 2 · Módulo 2 · Sección 2.2 — Metodología EARS: 6 Patrones</p>
+  <p style="margin-top:.5rem;">Fuentes: Mavin et al., IEEE RE'09 · <a href="https://www.researchgate.net/publication/335535918_Ten_Years_of_EARS">Ten Years of EARS, IEEE Software 2019</a> · <a href="https://www.researchgate.net/publication/308970788_Listens_Learned_8_Lessons_Learned_Applying_EARS">Listens Learned: 8 Lessons Applying EARS</a> · <a href="https://kiro.dev/docs/specs/">kiro.dev/docs/specs</a></p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
