@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — Integración EARS + Kiro Specs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:700px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .cli-block{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2.5rem}
+    .cli-block code{display:block;background:#0d1117;border-radius:8px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;color:var(--cyan-2);margin-top:1.5rem;overflow-x:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    .quote-block .quote-source{font-size:.8rem;font-style:normal;color:var(--text-muted);margin-top:.75rem}
+    .arch-diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem;margin-top:2.5rem;text-align:center}
+    .arch-flow{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}
+    .arch-node{background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.3rem;font-size:.85rem;font-weight:600}
+    .arch-node.main{background:linear-gradient(135deg,var(--purple-1),var(--purple-2));border:none;color:#fff}
+    .arch-node.tool{background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:var(--cyan-2)}
+    .arch-node.good{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green)}
+    .arch-node.bad{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.3);color:var(--red)}
+    .arch-arrow{font-size:1.3rem;color:var(--cyan-1)}
+    .arch-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-top:2rem;font-weight:600}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2.5rem}
+    .compare-col{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative;overflow:hidden}
+    .compare-col::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .compare-col.bad::before{background:var(--red)}
+    .compare-col.good::before{background:var(--green)}
+    .compare-col h3{margin-bottom:1rem}
+    .compare-col code{display:block;background:#0d1117;border-radius:8px;padding:1rem;font-family:'Courier New',monospace;font-size:.8rem;color:var(--cyan-2);line-height:1.7;white-space:pre-wrap;word-wrap:break-word;margin-top:.75rem}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}.compare-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#escribir">Escribir EARS</a></li>
+    <li><a href="#validacion">Validación</a></li>
+    <li><a href="#mapeo">Mapeo</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#comparacion">Comparación</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 2 · Sección 2.3 · Workshop 45 min</div>
+  <h1 class="fade-in">Integración<br /><span class="gradient-text">EARS + Kiro Specs</span></h1>
+  <p class="fade-in">De la teoría a la práctica: cómo escribir requirements.md con EARS, cómo Kiro los valida automáticamente, y cómo se transforman en design y tasks ejecutables. Al final, re-especificamos el RAG del M1 con rigor formal.</p>
+  <a href="#escribir" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ESCRIBIR EARS EN KIRO -->
+<section id="escribir">
+  <div class="section-label">01 — Escribir requirements.md con EARS</div>
+  <h2 class="fade-in">Estructura de un <span class="gradient-text">requirements.md</span> en Kiro</h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    En Kiro, cada spec tiene un archivo requirements.md donde los user stories se documentan con acceptance criteria en notación EARS. El formato es Markdown estándar con una estructura predecible que el agente puede parsear y verificar.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Estructura tipo de requirements.md</h3>
+    <code>
+# Requirements: RAG Knowledge Base
+
+## REQ-1: Indexación de documentos nuevos [Ubiquitous]
+**As a** administrador del sistema
+**I want to** que los documentos nuevos se indexen automáticamente
+**So that** la KB siempre esté actualizada sin intervención manual
+
+### Acceptance Criteria
+- El servicio de indexación SHALL procesar todo documento
+  nuevo agregado a la carpeta docs/ en un máximo de 60 segundos.
+- El servicio de indexación SHALL generar embeddings con
+  dimensionalidad consistente (1536 dimensiones para Titan).
+
+## REQ-2: Consultas con fuentes citadas [Event-Driven]
+**As a** usuario del equipo
+**I want to** hacer preguntas sobre documentación interna
+**So that** obtenga respuestas fundamentadas con la fuente original
+
+### Acceptance Criteria
+- WHEN un usuario envía una consulta al RAG, el servicio de
+  consultas SHALL retornar una respuesta con al menos una
+  fuente citada (nombre del documento + fragmento relevante).
+- WHEN un usuario envía una consulta vacía, el servicio de
+  consultas SHALL retornar un mensaje indicando que la
+  consulta no puede estar vacía.
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🏷️</div>
+      <h3>ID + Patrón EARS</h3>
+      <p>Cada requirement tiene un ID único (REQ-1, REQ-2...) y una etiqueta indicando qué patrón EARS usa. Facilita trazabilidad y auditoría.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">👤</div>
+      <h3>User Story (As a / I want / So that)</h3>
+      <p>Contexto humano: quién necesita qué y por qué. Le da al agente el "para qué" detrás del requirement técnico.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">✅</div>
+      <h3>Acceptance Criteria en EARS</h3>
+      <p>Los criterios de aceptación usan notación EARS estricta: keywords en mayúsculas, sistema nombrado, respuesta observable y testeable.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- VALIDACIÓN AUTOMÁTICA -->
+<section id="validacion">
+  <div class="section-label">02 — Validación automática</div>
+  <h2 class="fade-in">Kiro detecta requirements <span class="gradient-text">que no siguen EARS</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Al crear o editar requirements.md, Kiro analiza la estructura de tus acceptance criteria. Si detecta ambigüedad, falta de keywords obligatorias, o patrones incompletos, te alerta y sugiere correcciones.
+  </p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-col bad">
+      <h3 style="color:var(--red);">❌ Kiro detecta estos errores</h3>
+      <code>
+❌ "El sistema debe ser rápido"
+   → Falta SHALL, sin métrica concreta
+
+❌ "Cuando el usuario haga algo, responder"
+   → WHEN sin sistema nombrado, sin SHALL
+
+❌ "El sistema should mostrar un error"
+   → "should" no es válido, usar SHALL
+
+❌ "Si hay error, manejar adecuadamente"
+   → IF sin THEN, respuesta vaga
+
+❌ "El sistema SHALL ser seguro y rápido"
+   → Dos requirements en uno, no testeable
+      </code>
+    </div>
+    <div class="compare-col good">
+      <h3 style="color:var(--green);">✅ Corrección sugerida por Kiro</h3>
+      <code>
+✅ "El servicio de consultas SHALL responder
+   en menos de 3 segundos (p95)."
+
+✅ "WHEN el usuario envía una consulta,
+   el servicio de consultas SHALL retornar
+   una respuesta con fuentes citadas."
+
+✅ "El servicio de autenticación SHALL
+   rechazar tokens expirados con HTTP 401."
+
+✅ "IF la API de embeddings retorna error,
+   THEN el servicio de indexación SHALL
+   reintentar 3 veces con backoff exponencial."
+
+✅ Dividir en 2 requirements separados,
+   cada uno con una métrica específica.
+      </code>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔍</div>
+      <h3>Detección de ambigüedad</h3>
+      <p>Palabras como "rápido", "adecuado", "correcto" sin métrica disparan alertas. Kiro pide especificar: ¿cuántos ms? ¿qué código HTTP? ¿qué mensaje exacto?</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⚠️</div>
+      <h3>Keywords incorrectas</h3>
+      <p>"should", "must", "will", "can" → Kiro sugiere reemplazar por SHALL. Solo SHALL indica obligatoriedad sin ambigüedad en EARS.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">✂️</div>
+      <h3>Requirements compuestos</h3>
+      <p>Si detecta "y" conectando dos comportamientos, sugiere dividir en requirements separados. Cada EARS = un comportamiento = un test.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- MAPEO EARS → DESIGN → TASKS -->
+<section id="mapeo">
+  <div class="section-label">03 — Mapeo EARS → Design → Tasks</div>
+  <h2 class="fade-in">De EARS a <span class="gradient-text">correctness properties y tasks</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Cada requirement EARS se transforma en una "correctness property" en el design.md (una invariante que el código debe cumplir), y luego en tasks discretas con checklist de implementación.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Pipeline de transformación</h3>
+    <p style="font-size:.85rem;margin-top:.5rem;color:var(--text-muted);">EARS → Acceptance Criteria → Correctness Property → Task → Test</p>
+
+    <div class="arch-flow" style="margin-top:2rem;">
+      <div class="arch-node main">📋 EARS Requirement</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">🏗️ Correctness Property (design.md)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">☑️ Task + Checklist (tasks.md)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node good">🧪 Test verificable</div>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2rem;">
+    <h3>Ejemplo: EARS → design.md</h3>
+    <code>
+# EARS Requirement (requirements.md):
+"WHEN un usuario envía una consulta al RAG, el servicio de
+consultas SHALL retornar una respuesta con al menos una fuente
+citada en un máximo de 5 segundos."
+
+# Correctness Property (design.md):
+## CP-2: Respuesta con fuentes citadas
+- Invariante: toda respuesta del RAG incluye >= 1 fuente
+- Fuente = { documentName: string, chunk: string, score: number }
+- Tiempo de respuesta p95 < 5000ms
+- Si no hay chunks relevantes (score < 0.3), aplicar REQ-5
+  (Unwanted Behavior: responder "no encontré información")
+
+# Implicaciones de diseño:
+- El retriever debe retornar metadata con cada chunk
+- La respuesta debe incluir un array de sources[] obligatorio
+- Implementar timeout de 5s con circuit breaker
+    </code>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:1.5rem;">
+    <h3>Ejemplo: Correctness Property → tasks.md</h3>
+    <code>
+## Task 5: Implementar respuestas con fuentes citadas [pending]
+Depende de: Task 3 (retriever), Task 4 (LLM integration)
+
+### Checklist:
+- [ ] El retriever retorna metadata (docName, chunk, score)
+- [ ] La función queryRAG() incluye array sources[] en respuesta
+- [ ] Si sources está vacío, retornar mensaje de "no encontré info"
+- [ ] Timeout de 5s implementado con circuit breaker
+- [ ] Test: consulta válida → respuesta con >= 1 fuente
+- [ ] Test: consulta sin matches → mensaje informativo
+- [ ] Test: timeout → respuesta graceful degradation
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔗</div>
+      <h3>Trazabilidad completa</h3>
+      <p>REQ-2 (EARS) → CP-2 (design) → Task 5 (implementation) → Tests derivados. Puedes rastrear cualquier línea de código hasta su requirement original.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧪</div>
+      <h3>EARS → GIVEN/WHEN/THEN</h3>
+      <p><strong>WHILE</strong> → GIVEN (setup). <strong>WHEN</strong> → WHEN (action). <strong>SHALL</strong> → THEN (assertion). Los tests se derivan automáticamente de los EARS.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">☑️</div>
+      <h3>Checklist = verification</h3>
+      <p>Cada task tiene un checklist derivado de la correctness property. El agente verifica cada item antes de marcar la task como completed.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- DEMO FEATURE COMPLETA -->
+<section id="demo">
+  <div class="section-label">04 — Demo: Feature completa con EARS</div>
+  <h2 class="fade-in">De prompt a código en <span class="gradient-text">3 artefactos</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Flujo completo de una feature del RAG: defines la intención → Kiro genera requirements EARS → diseña la arquitectura → genera tasks → ejecuta. Cada paso tiene gate de aprobación.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Flujo de la demo</h3>
+    <div class="arch-label">PASO 1: TU INTENCIÓN</div>
+    <div class="arch-flow">
+      <div class="arch-node">💬 "Quiero que el RAG soporte control de acceso por rol"</div>
+    </div>
+    <div class="arch-label">PASO 2: KIRO GENERA REQUIREMENTS.MD</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">REQ-1 [WHERE]: Verificar permisos</div>
+      <div class="arch-node tool">REQ-2 [IF/THEN]: Sin acceso → filtrar</div>
+      <div class="arch-node tool">REQ-3 [WHEN]: Log de acceso</div>
+    </div>
+    <div class="arch-label">PASO 3: KIRO GENERA DESIGN.MD</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">CP-1: Middleware de permisos</div>
+      <div class="arch-node tool">CP-2: Filtrado por rol en retriever</div>
+      <div class="arch-node tool">CP-3: Audit log</div>
+    </div>
+    <div class="arch-label">PASO 4: KIRO GENERA TASKS.MD Y EJECUTA</div>
+    <div class="arch-flow">
+      <div class="arch-node good">Task 1 ✅</div>
+      <div class="arch-node good">Task 2 ✅</div>
+      <div class="arch-node good">Task 3 ✅</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node main">🎉 Feature completa</div>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p>El mismo RAG que en M1 construimos en Vibe (sin plan, sin docs, sin verificación), ahora lo re-especificamos con rigor: cada comportamiento tiene un EARS, cada EARS tiene un test, cada test tiene un task que el agente ejecuta y verifica.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- COMPARACIÓN -->
+<section id="comparacion">
+  <div class="section-label">05 — Lenguaje natural vs EARS</div>
+  <h2 class="fade-in">¿Cuál genera <span class="gradient-text">mejor código?</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    La misma intención expresada de dos formas diferentes produce resultados radicalmente distintos cuando el agente la implementa. EARS no es burocracia — es precisión que se traduce directamente en calidad de código.
+  </p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-col bad">
+      <h3 style="color:var(--red);">❌ Lenguaje natural libre</h3>
+      <code>
+"El RAG debe responder rápido y citar fuentes.
+Si no encuentra nada, que lo maneje bien.
+También debería funcionar cuando hay mucha carga."
+      </code>
+      <p style="margin-top:1rem;font-size:.85rem;color:var(--text-muted);">
+        <strong style="color:var(--red)">Resultado:</strong> El agente interpreta "rápido" como quiera, "manejar bien" es subjetivo, "mucha carga" sin definir. Código sin timeouts claros, sin tests precisos, comportamiento inconsistente.
+      </p>
+    </div>
+    <div class="compare-col good">
+      <h3 style="color:var(--green);">✅ EARS formal</h3>
+      <code>
+REQ-1 [Ubiquitous]: El servicio de consultas
+SHALL responder en < 5 segundos (p95).
+
+REQ-2 [Event-Driven]: WHEN un usuario envía
+una consulta, el servicio SHALL retornar
+respuesta con >= 1 fuente citada.
+
+REQ-3 [Unwanted]: IF no hay documentos
+relevantes (score < 0.3), THEN el servicio
+SHALL retornar "No encontré información
+relevante. Intente reformular su pregunta."
+
+REQ-4 [State-Driven]: WHILE el sistema
+procesa > 50 consultas concurrentes, el
+servicio SHALL mantener latencia < 5s
+mediante cola de prioridad.
+      </code>
+      <p style="margin-top:1rem;font-size:.85rem;color:var(--text-muted);">
+        <strong style="color:var(--green)">Resultado:</strong> El agente implementa timeout de 5s, incluye sources[] obligatorio, maneja el caso vacío con mensaje específico, implementa cola bajo carga. Cada punto es testeable.
+      </p>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in" style="text-align:center;">
+      <div class="card-icon" style="margin:0 auto 1rem;">🎯</div>
+      <h3>Siguiente paso</h3>
+      <p>Abre el archivo <code>2.3 integracion-ears-kiro.md</code> para el workshop de 45 minutos: re-especificar el RAG del M1 con EARS formales y ejecutar tasks.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 2 · Módulo 2 · Sección 2.3 — Integración EARS + Kiro Specs</p>
+  <p style="margin-top:.5rem;">Fuentes: <a href="https://kiro.dev/docs/specs/">kiro.dev/docs/specs</a> · <a href="https://kiro.dev/docs/specs/feature-specs/">Feature Specs</a></p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
