@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — Fundamentos Spec-Driven Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:680px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .arch-diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem;margin-top:2.5rem;text-align:center}
+    .arch-flow{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}
+    .arch-node{background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.3rem;font-size:.85rem;font-weight:600}
+    .arch-node.main{background:linear-gradient(135deg,var(--purple-1),var(--purple-2));border:none;color:#fff}
+    .arch-node.tool{background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:var(--cyan-2)}
+    .arch-node.approve{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green)}
+    .arch-arrow{font-size:1.3rem;color:var(--cyan-1)}
+    .arch-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-top:2rem;font-weight:600}
+    .cli-block{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2.5rem}
+    .cli-block code{display:block;background:#0d1117;border-radius:8px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;color:var(--cyan-2);margin-top:1.5rem;overflow-x:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    .quote-block .quote-source{font-size:.8rem;font-style:normal;color:var(--text-muted);margin-top:.75rem}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2.5rem}
+    .compare-col{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative;overflow:hidden}
+    .compare-col::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .compare-col.bad::before{background:var(--red)}
+    .compare-col.good::before{background:var(--green)}
+    .compare-col h3{margin-bottom:1rem}
+    .compare-col ul{list-style:none;padding:0}
+    .compare-col ul li{font-size:.875rem;color:var(--text-muted);padding:.4rem 0;padding-left:1.5rem;position:relative}
+    .compare-col.bad ul li::before{content:'✗';position:absolute;left:0;color:var(--red);font-weight:700}
+    .compare-col.good ul li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700}
+    .workflow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:3rem}
+    .workflow-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative;overflow:hidden}
+    .workflow-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .workflow-card.req::before{background:var(--purple-2)}
+    .workflow-card.design::before{background:var(--cyan-1)}
+    .workflow-card.quick::before{background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .workflow-tag{display:inline-block;padding:.25rem .75rem;border-radius:999px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem}
+    .workflow-card.req .workflow-tag{background:rgba(168,85,247,0.15);color:var(--purple-2)}
+    .workflow-card.design .workflow-tag{background:rgba(6,182,212,0.15);color:var(--cyan-1)}
+    .workflow-card.quick .workflow-tag{background:rgba(124,58,237,0.15);color:var(--purple-2)}
+    .workflow-card h3{margin-bottom:.5rem}
+    .workflow-card p{font-size:.875rem}
+    .workflow-card ul{list-style:none;padding:0;margin-top:.75rem}
+    .workflow-card ul li{font-size:.8rem;color:var(--text-muted);padding:.25rem 0;padding-left:1rem;position:relative}
+    .workflow-card ul li::before{content:'→';position:absolute;left:0;color:var(--cyan-1)}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}.arch-flow{flex-direction:column}.compare-grid{grid-template-columns:1fr}.workflow-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#filosofia">Filosofía</a></li>
+    <li><a href="#flujo">Flujo</a></li>
+    <li><a href="#estructura">Estructura</a></li>
+    <li><a href="#workflows">Workflows</a></li>
+    <li><a href="#ejecucion">Ejecución</a></li>
+    <li><a href="#antipatron">Anti-patrón</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 2 · Sección 2.1</div>
+  <h1 class="fade-in">Fundamentos de<br /><span class="gradient-text">Spec-Driven Development</span></h1>
+  <p class="fade-in">Diseña primero, implementa después. Las specs son el contrato entre tu intención y la ejecución del agente — con trazabilidad, documentación y calidad garantizadas desde el primer commit.</p>
+  <a href="#filosofia" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FILOSOFÍA -->
+<section id="filosofia">
+  <div class="section-label">01 — Filosofía</div>
+  <h2 class="fade-in">"Diseña primero, <span class="gradient-text">implementa después</span>"</h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    En desarrollo tradicional con IA, el developer escribe un prompt y el agente genera código inmediatamente. Es rápido, pero frágil. Spec-Driven Development invierte el proceso: primero defines qué necesitas (requirements), luego cómo se construye (design), y finalmente el agente ejecuta un plan concreto (tasks).
+  </p>
+
+  <div class="quote-block fade-in">
+    <p>"La unidad de trabajo en Kiro no es un prompt suelto — es una especificación estructurada que el agente usa para planificar, implementar, verificar y documentar tu feature de punta a punta."</p>
+    <div class="quote-source">— Kiro, spec-driven development philosophy</div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🏗️</div>
+      <h3>Analogía: Arquitecto vs Albañil</h3>
+      <p>Un arquitecto no construye sin planos. Un developer no debería codear sin spec. Los planos son el contrato — la spec es tu contrato con el agente.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📋</div>
+      <h3>Spec = Contrato verificable</h3>
+      <p>Cada spec define acceptance criteria claros. El agente verifica automáticamente que cada tarea cumple con lo especificado antes de marcarla como completada.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔍</div>
+      <h3>Trazabilidad total</h3>
+      <p>Cada línea de código tiene origen: viene de una task, que viene de un design, que viene de un requirement. Puedes rastrear cualquier decisión hasta su origen.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">👥</div>
+      <h3>Colaboración equipo-IA</h3>
+      <p>Tú defines el qué y el por qué. El agente propone el cómo. Tú apruebas cada fase antes de avanzar. Nunca pierdes el control.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FLUJO COMPLETO -->
+<section id="flujo">
+  <div class="section-label">02 — El flujo completo</div>
+  <h2 class="fade-in">Requirements → Design → <span class="gradient-text">Tasks</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Toda spec en Kiro pasa por tres fases secuenciales. Cada fase genera un artefacto concreto. Entre cada fase hay un gate de aprobación — tú revisas y apruebas antes de que el agente avance.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Flujo Spec-Driven Development</h3>
+    <p style="font-size:.85rem;margin-top:.5rem;color:var(--text-muted);">Tres fases con gates de aprobación entre cada una</p>
+
+    <div class="arch-flow" style="margin-top:2rem;">
+      <div class="arch-node main">📋 Requirements</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node approve">✅ Aprobación</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node main">🏗️ Design</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node approve">✅ Aprobación</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node main">✅ Tasks</div>
+    </div>
+
+    <div class="arch-label">ARTEFACTOS GENERADOS</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">requirements.md</div>
+      <div class="arch-node tool">design.md</div>
+      <div class="arch-node tool">tasks.md</div>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">📋</div>
+      <h3>Fase 1: Requirements</h3>
+      <p>Define <strong>qué</strong> necesitas. User stories con acceptance criteria en notación EARS. Cada requirement es verificable y medible.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🏗️</div>
+      <h3>Fase 2: Design</h3>
+      <p>Define <strong>cómo</strong> se construye. Arquitectura de componentes, diagramas de secuencia, data flow, error handling y testing strategy.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">✅</div>
+      <h3>Fase 3: Tasks</h3>
+      <p>Define <strong>qué pasos</strong> ejecutar. Lista de tareas discretas, ordenadas por dependencias, con verificación automática entre cada una.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ESTRUCTURA -->
+<section id="estructura">
+  <div class="section-label">03 — Estructura en el proyecto</div>
+  <h2 class="fade-in"><span class="gradient-text">.kiro/specs/</span> — Donde viven las specs</h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Cada feature tiene su propia carpeta dentro de <code>.kiro/specs/</code>. Los 3 artefactos se generan automáticamente y quedan versionados con tu código. Son archivos Markdown — legibles, editables y portables.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Estructura de archivos</h3>
+    <code>
+tu-proyecto/
+├── .kiro/
+│   └── specs/
+│       ├── autenticacion-oauth/
+│       │   ├── requirements.md    ← User stories + acceptance criteria
+│       │   ├── design.md          ← Arquitectura + diagramas
+│       │   └── tasks.md           ← Tareas ejecutables
+│       ├── modulo-cotizaciones/
+│       │   ├── requirements.md
+│       │   ├── design.md
+│       │   └── tasks.md
+│       └── dashboard-reportes/
+│           ├── requirements.md
+│           ├── design.md
+│           └── tasks.md
+├── src/
+├── package.json
+└── ...
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">📄</div>
+      <h3>requirements.md</h3>
+      <p>User stories escritas en notación EARS (Easy Approach to Requirements Syntax). Cada historia tiene ID, descripción y acceptance criteria verificables.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📐</div>
+      <h3>design.md</h3>
+      <p>Documento técnico con arquitectura de componentes, diagramas de secuencia (Mermaid), interfaces/tipos, data flow, estrategia de error handling y testing.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">☑️</div>
+      <h3>tasks.md</h3>
+      <p>Lista numerada de tareas discretas. Cada tarea tiene un outcome claro. Se ejecutan secuencialmente o en paralelo según su dependency graph.</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2rem;">
+    <h3>Ejemplo: requirements.md</h3>
+    <code>
+# Requirements: Módulo de Cotizaciones
+
+## REQ-1: Recepción de planillas
+**As a** operador de recaudación
+**I want to** recibir planillas de cotizaciones vía portal empleador
+**So that** las cotizaciones se procesen automáticamente
+
+### Acceptance Criteria
+- GIVEN un archivo previred válido (CSV/XML)
+  WHEN se sube al portal
+  THEN se validan RUT, montos y períodos en < 30 segundos
+- GIVEN un archivo con errores parciales
+  WHEN se procesa
+  THEN se genera reporte de rechazo con detalle por fila
+    </code>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WORKFLOWS -->
+<section id="workflows">
+  <div class="section-label">04 — Feature Workflows</div>
+  <h2 class="fade-in">Tres formas de iniciar <span class="gradient-text">una spec</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Dependiendo de tu situación (¿ya tienes diseño? ¿solo una idea? ¿feature simple?), Kiro ofrece tres workflows para crear specs.
+  </p>
+
+  <div class="workflow-grid">
+    <div class="workflow-card req fade-in">
+      <div class="workflow-tag">Más común</div>
+      <h3>📋 Requirements-First</h3>
+      <p>Defines <strong>qué necesitas</strong> en lenguaje natural. El agente genera requirements formales → luego design → luego tasks.</p>
+      <ul>
+        <li>Ideal cuando sabes el "qué" pero no el "cómo"</li>
+        <li>El agente propone la arquitectura</li>
+        <li>Tú apruebas cada fase antes de avanzar</li>
+        <li>Máximo control sobre el proceso</li>
+      </ul>
+    </div>
+    <div class="workflow-card design fade-in">
+      <div class="workflow-tag">Si ya tienes diseño</div>
+      <h3>🏗️ Design-First</h3>
+      <p>Ya tienes arquitectura (whiteboard, diagrama, doc previo). Subes el diseño y el agente extrae requirements + genera tasks.</p>
+      <ul>
+        <li>Sube diagramas (PNG, JPG) o pega contenido de diseño</li>
+        <li>El agente formaliza tu diseño en design.md</li>
+        <li>Deriva requirements del diseño automáticamente</li>
+        <li>Ideal post-reunión de arquitectura</li>
+      </ul>
+    </div>
+    <div class="workflow-card quick fade-in">
+      <div class="workflow-tag">Fast track</div>
+      <h3>⚡ Quick Plan</h3>
+      <p>Auto-genera los 3 artefactos sin gates de aprobación. Para features simples y bien entendidas donde no necesitas iterar.</p>
+      <ul>
+        <li>Un solo prompt genera todo</li>
+        <li>Sin paradas de aprobación</li>
+        <li>Ideal para features pequeñas y claras</li>
+        <li>Puedes editar los artefactos después</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p><strong>¿Cuándo usar cada uno?</strong><br/>
+    Requirements-First → feature nueva, exploratoria<br/>
+    Design-First → ya hiciste spike o whiteboarding<br/>
+    Quick Plan → feature obvia, CRUD simple, cambio menor</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EJECUCIÓN DE TASKS -->
+<section id="ejecucion">
+  <div class="section-label">05 — Ejecución de Tasks</div>
+  <h2 class="fade-in">El agente como <span class="gradient-text">ejecutor de tasks</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Una vez que apruebas el tasks.md, el agente ejecuta cada tarea de forma autónoma. Verifica resultados entre cada paso. Puedes ejecutar una tarea individual o lanzar todas — las independientes corren en paralelo.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Ejecución paralela con Dependency Graph</h3>
+    <p style="font-size:.85rem;margin-top:.5rem;color:var(--text-muted);">Kiro analiza dependencias y agrupa tareas en waves</p>
+
+    <div class="arch-label">WAVE 1 — Tareas sin dependencias (paralelo)</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">Task 1: Setup proyecto</div>
+      <div class="arch-node tool">Task 2: Crear interfaces</div>
+      <div class="arch-node tool">Task 3: Config DB</div>
+    </div>
+
+    <div class="arch-label">WAVE 2 — Dependen de Wave 1 (paralelo)</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">Task 4: Implementar API</div>
+      <div class="arch-node tool">Task 5: Implementar validaciones</div>
+    </div>
+
+    <div class="arch-label">WAVE 3 — Dependen de Wave 2</div>
+    <div class="arch-flow">
+      <div class="arch-node tool">Task 6: Tests de integración</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node approve">✅ Feature completa</div>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">▶️</div>
+      <h3>Run individual</h3>
+      <p>Ejecuta una sola tarea. Ideal para testing granular o cuando quieres revisar paso a paso.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⏩</div>
+      <h3>Run All Tasks</h3>
+      <p>Kiro analiza dependencias, agrupa en waves y ejecuta en paralelo. Reduce tiempos significativamente.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📊</div>
+      <h3>Status Tracking</h3>
+      <p>Cada tarea tiene estado en tiempo real: <code>pending</code> → <code>in_progress</code> → <code>completed</code>. Ves el progreso sin salir del IDE.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔄</div>
+      <h3>Verificación automática</h3>
+      <p>Entre cada tarea, el agente verifica que el resultado cumple con el diseño y los acceptance criteria antes de marcar como completada.</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2rem;">
+    <h3>Ejemplo: tasks.md</h3>
+    <code>
+# Tasks: Módulo de Cotizaciones
+
+## Task 1: Setup del proyecto [completed]
+- Crear estructura de carpetas src/cotizaciones/
+- Configurar dependencias necesarias
+- Crear archivo de configuración de la DB
+
+## Task 2: Definir interfaces TypeScript [completed]
+- Crear tipos para Cotizacion, Planilla, ResultadoValidacion
+- Exportar desde src/cotizaciones/types.ts
+
+## Task 3: Implementar validador de planillas [in_progress]
+- Implementar validación de RUT (módulo 11)
+- Validar montos dentro de rango legal
+- Validar períodos no duplicados
+- Generar reporte de errores por fila
+
+## Task 4: Implementar servicio de acreditación [pending]
+- Depende de: Task 2, Task 3
+- Acreditar cotizaciones válidas en cuenta individual
+- Distribuir según fondo elegido por afiliado
+    </code>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ANTI-PATRÓN -->
+<section id="antipatron">
+  <div class="section-label">06 — El anti-patrón</div>
+  <h2 class="fade-in">Vibe directo sin spec = <span class="gradient-text">deuda técnica garantizada</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    El modo Vibe es excelente para explorar y prototipar. Pero usarlo para construir features de producción sin una spec es como construir un edificio sin planos: funciona al principio, pero colapsa cuando escala.
+  </p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-col bad">
+      <h3 style="color:var(--red);">❌ Vibe directo (sin spec)</h3>
+      <ul>
+        <li>No hay documentación de decisiones de diseño</li>
+        <li>Código sin trazabilidad — ¿por qué se hizo así?</li>
+        <li>El agente interpreta diferente en cada sesión</li>
+        <li>Sin acceptance criteria = sin forma de verificar</li>
+        <li>Refactoring doloroso — no sabes qué rompes</li>
+        <li>Onboarding de nuevos devs es un misterio</li>
+        <li>Prototipos que nunca escalan a producción</li>
+        <li>Iteraciones infinitas corrigiendo output de la IA</li>
+      </ul>
+    </div>
+    <div class="compare-col good">
+      <h3 style="color:var(--green);">✅ Con Spec-Driven</h3>
+      <ul>
+        <li>Cada decisión documentada en design.md</li>
+        <li>Trazabilidad completa: requirement → task → código</li>
+        <li>El agente sigue un plan consistente siempre</li>
+        <li>Acceptance criteria claros y verificables</li>
+        <li>Refactoring seguro — sabes el contrato</li>
+        <li>Onboarding: lee la spec y entiende la feature</li>
+        <li>Código production-ready desde el primer task</li>
+        <li>Una sola iteración con verificación automática</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2.5rem;">
+    <p><strong>Regla de oro:</strong> Usa Vibe para explorar y aprender. Usa Spec para construir features reales que van a producción. Nunca al revés.</p>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">💬</div>
+      <h3>¿Cuándo usar Vibe?</h3>
+      <p>Prototipos rápidos, exploración de APIs, preguntas al agente, spikes técnicos, aprendizaje. Nada que vaya directo a producción.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📋</div>
+      <h3>¿Cuándo usar Spec?</h3>
+      <p>Features nuevas, bugfixes complejos, cualquier cosa que el equipo deba mantener, código que va a producción, funcionalidad con acceptance criteria.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>La transición</h3>
+      <p>Puedes explorar en Vibe y cuando encuentras el enfoque correcto, crear una Spec para implementar con rigor. No son excluyentes — son complementarios.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 2 · Módulo 2 · Sección 2.1 — Fundamentos Spec-Driven Development</p>
+  <p style="margin-top:.5rem;">Fuentes: <a href="https://kiro.dev/docs/specs/">kiro.dev/docs/specs</a> · <a href="https://kiro.dev/docs/specs/feature-specs/">Feature Specs</a> · <a href="https://kiro.dev/docs/specs/best-practices/">Best Practices</a></p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
