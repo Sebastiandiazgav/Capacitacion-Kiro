@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — Correctness Properties para el RAG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:700px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .cli-block{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2.5rem}
+    .cli-block code{display:block;background:#0d1117;border-radius:8px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;color:var(--cyan-2);margin-top:1.5rem;overflow-x:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    .quote-block .quote-source{font-size:.8rem;font-style:normal;color:var(--text-muted);margin-top:.75rem}
+    .property-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2rem;position:relative;overflow:hidden}
+    .property-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .property-card:hover{box-shadow:0 12px 40px var(--glow)}
+    .property-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem}
+    .property-number{background:linear-gradient(135deg,var(--purple-1),var(--cyan-1));color:#fff;font-weight:800;font-size:1rem;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .property-name{font-size:1.2rem;font-weight:700}
+    .property-formal{background:#0d1117;border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0;font-family:'Courier New',monospace;font-size:.9rem;line-height:1.6;color:var(--cyan-2);border:1px solid rgba(6,182,212,0.2);white-space:pre-wrap}
+    .property-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+    .property-why,.property-test{background:var(--bg-card2);border-radius:10px;padding:1.25rem;border:1px solid var(--border)}
+    .property-why-label,.property-test-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+    .property-why-label{color:var(--red)}
+    .property-test-label{color:var(--green)}
+    .property-why p,.property-test p{font-size:.85rem}
+    .classify-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+    .classify-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center}
+    .classify-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .classify-icon{font-size:2.5rem;margin-bottom:1rem}
+    .classify-card h3{margin-bottom:.5rem}
+    .classify-card p{font-size:.85rem}
+    .verify-item{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:2rem;margin-top:1.5rem;display:flex;gap:1.5rem;align-items:flex-start}
+    .verify-icon{font-size:2rem;flex-shrink:0}
+    .verify-item h3{margin-bottom:.4rem}
+    .verify-item p{font-size:.875rem}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}.property-grid{grid-template-columns:1fr}.classify-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#que-son">¿Qué son?</a></li>
+    <li><a href="#propiedades">4 Propiedades RAG</a></li>
+    <li><a href="#clasificacion">Clasificación</a></li>
+    <li><a href="#verificacion">Verificación</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 3 · Sección 3.1</div>
+  <h1 class="fade-in">Correctness Properties<br /><span class="gradient-text">para el RAG</span></h1>
+  <p class="fade-in">Invariantes que tu código DEBE cumplir siempre, sin importar el input. No son tests de un caso — son leyes universales de tu sistema que garantizan que el RAG nunca miente, nunca inventa y siempre cita sus fuentes.</p>
+  <a href="#que-son" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- QUÉ SON CORRECTNESS PROPERTIES -->
+<section id="que-son">
+  <div class="section-label">01 — Concepto fundamental</div>
+  <h2 class="fade-in">¿Qué son las <span class="gradient-text">Correctness Properties?</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Una Correctness Property es una invariante que el código DEBE cumplir siempre, para cualquier input válido. No es un test de un caso específico — es una ley universal de tu sistema. Si se viola, hay un bug. Punto.
+  </p>
+
+  <div class="quote-block fade-in">
+    <p>"Un property test no verifica que la función retorna 42 para el input 7. Verifica que para TODO input posible, la función cumple una propiedad: el resultado siempre es positivo, siempre es menor que el input, siempre contiene al menos un elemento."</p>
+    <div class="quote-source">— Concepto central de Property-Based Testing</div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🔬</div>
+      <h3>Analogía: Leyes de la física</h3>
+      <p>La gravedad siempre atrae objetos hacia abajo — no solo los martes ni solo con pelotas rojas. Una correctness property se cumple SIEMPRE, para TODOS los inputs. Es una ley de tu sistema.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🆚</div>
+      <h3>Property vs Example Test</h3>
+      <p><strong>Example test:</strong> "para input 'hola', retorna 'HOLA'".<br/><strong>Property:</strong> "para TODO input string, el output tiene la misma longitud que el input". Miles de casos en una sola declaración.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>¿Por qué importa para RAG?</h3>
+      <p>Un RAG maneja inputs impredecibles (preguntas de usuarios). No puedes testear todas las preguntas posibles — pero sí puedes garantizar propiedades universales: "siempre cita fuentes", "nunca inventa".</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🏗️</div>
+      <h3>En el design.md de Kiro</h3>
+      <p>Las correctness properties viven en el <code>design.md</code> como invariantes que cada task debe respetar. El agente las verifica automáticamente al completar cada tarea.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- 4 PROPIEDADES UNIVERSALES DEL RAG -->
+<section id="propiedades">
+  <div class="section-label">02 — Propiedades universales del RAG</div>
+  <h2 class="fade-in">4 invariantes que tu RAG <span class="gradient-text">DEBE cumplir siempre</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Estas son las propiedades de corrección fundamentales para cualquier RAG sobre documentación interna. Si alguna se viola, el sistema no es confiable para uso en producción.
+  </p>
+
+  <!-- PROPERTY 1 -->
+  <div class="property-card fade-in">
+    <div class="property-header">
+      <div class="property-number">1</div>
+      <div class="property-name">Citación obligatoria de fuentes</div>
+    </div>
+    <p style="margin-bottom:1rem;">Para toda consulta que genere una respuesta, el RAG SIEMPRE cita las fuentes de donde extrajo la información.</p>
+    <div class="property-formal">∀ query ∈ Consultas, ∀ response = RAG(query):
+  response.sources.length ≥ 1
+  ∧ ∀ source ∈ response.sources:
+    source.documentName ∈ DocumentosIndexados
+    ∧ source.chunk ≠ ""</div>
+    <div class="property-grid">
+      <div class="property-why">
+        <div class="property-why-label">⚠️ Si se viola</div>
+        <p>El usuario recibe respuestas sin respaldo. No puede verificar si la información es correcta. Pierde confianza en el sistema. En contexto regulatorio (AFP UNO / Superintendencia), esto puede tener consecuencias legales.</p>
+      </div>
+      <div class="property-test">
+        <div class="property-test-label">✅ Cómo se verifica</div>
+        <p>Para N consultas aleatorias generadas, verificar que <code>response.sources.length >= 1</code> y que cada source referencia un documento que existe en el index.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY 2 -->
+  <div class="property-card fade-in">
+    <div class="property-header">
+      <div class="property-number">2</div>
+      <div class="property-name">No fabricación (No Hallucination)</div>
+    </div>
+    <p style="margin-bottom:1rem;">El RAG NUNCA fabrica información que no existe en la Knowledge Base. Toda afirmación en la respuesta debe ser rastreable a un chunk indexado.</p>
+    <div class="property-formal">∀ query ∈ Consultas, ∀ response = RAG(query):
+  ∀ claim ∈ response.claims:
+    ∃ chunk ∈ IndexedChunks:
+      semanticSimilarity(claim, chunk) ≥ GROUNDING_THRESHOLD</div>
+    <div class="property-grid">
+      <div class="property-why">
+        <div class="property-why-label">⚠️ Si se viola</div>
+        <p>El RAG "inventa" información. En AFP UNO, podría generar montos de cotizaciones falsos, normativas inexistentes o procedimientos incorrectos. Un RAG que alucina es peor que no tener RAG.</p>
+      </div>
+      <div class="property-test">
+        <div class="property-test-label">✅ Cómo se verifica</div>
+        <p>Para cada afirmación en la respuesta, calcular similitud semántica con los chunks usados. Si alguna afirmación no tiene anclaje suficiente (score < threshold), el property falla.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY 3 -->
+  <div class="property-card fade-in">
+    <div class="property-header">
+      <div class="property-number">3</div>
+      <div class="property-name">Respuesta acotada (Bounded Response)</div>
+    </div>
+    <p style="margin-bottom:1rem;">La longitud de la respuesta está acotada — el RAG no genera respuestas infinitas ni desproporcionadamente largas.</p>
+    <div class="property-formal">∀ query ∈ Consultas, ∀ response = RAG(query):
+  response.answer.length ≤ MAX_RESPONSE_LENGTH
+  ∧ response.answer.length > 0
+  ∧ response.processingTime ≤ MAX_TIMEOUT</div>
+    <div class="property-grid">
+      <div class="property-why">
+        <div class="property-why-label">⚠️ Si se viola</div>
+        <p>Costos de API se disparan (más tokens = más caro). UX degradada (usuario espera demasiado). Posible timeout. En batch processing, una respuesta infinita bloquea todo el pipeline.</p>
+      </div>
+      <div class="property-test">
+        <div class="property-test-label">✅ Cómo se verifica</div>
+        <p>Para N consultas aleatorias: <code>response.length <= MAX</code>, <code>response.length > 0</code>, y <code>processingTime <= timeout</code>. Incluir inputs extremos: consultas muy largas, vacías, en otros idiomas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY 4 -->
+  <div class="property-card fade-in">
+    <div class="property-header">
+      <div class="property-number">4</div>
+      <div class="property-name">Umbral de Grounding configurable</div>
+    </div>
+    <p style="margin-bottom:1rem;">El score de grounding (anclaje a fuentes) cumple un umbral mínimo configurable. Si no se alcanza, el sistema lo declara explícitamente en vez de responder con baja confianza.</p>
+    <div class="property-formal">∀ query ∈ Consultas, ∀ response = RAG(query):
+  IF max(chunk_scores) < GROUNDING_THRESHOLD:
+    response.type = "NO_RELEVANT_INFO"
+    ∧ response.answer CONTAINS "no encontré información"
+  ELSE:
+    response.confidence ≥ GROUNDING_THRESHOLD
+    ∧ response.sources[0].score ≥ GROUNDING_THRESHOLD</div>
+    <div class="property-grid">
+      <div class="property-why">
+        <div class="property-why-label">⚠️ Si se viola</div>
+        <p>El RAG responde con baja confianza sin advertir. El usuario asume que la respuesta es confiable cuando en realidad no tiene buen anclaje a fuentes. Decisiones basadas en información poco fiable.</p>
+      </div>
+      <div class="property-test">
+        <div class="property-test-label">✅ Cómo se verifica</div>
+        <p>Generar consultas que NO tienen respuesta en la KB (temas no cubiertos). Verificar que el sistema retorna "no encontré información" en vez de inventar. Verificar que el threshold es configurable externamente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CLASIFICACIÓN DE CRITERIOS -->
+<section id="clasificacion">
+  <div class="section-label">03 — Clasificación de criterios</div>
+  <h2 class="fade-in">Property vs Example vs <span class="gradient-text">Edge-Case</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    No todo acceptance criteria es un property. Al hacer prework analysis de requirements, debes clasificar cada criterio en una de estas 3 categorías. Esto determina cómo se testea.
+  </p>
+
+  <div class="classify-grid fade-in">
+    <div class="classify-card">
+      <div class="classify-icon">🔬</div>
+      <h3>Property</h3>
+      <p>Invariante universal. Se cumple para TODOS los inputs posibles. Se testea con generación aleatoria de inputs (PBT).</p>
+      <p style="margin-top:.75rem;font-size:.8rem;color:var(--cyan-1);font-weight:600;">Ejemplo: "Toda respuesta tiene sources.length ≥ 1"</p>
+    </div>
+    <div class="classify-card">
+      <div class="classify-icon">📝</div>
+      <h3>Example</h3>
+      <p>Un caso concreto y específico. Se cumple para UN input determinado. Se testea con unit tests tradicionales.</p>
+      <p style="margin-top:.75rem;font-size:.8rem;color:var(--cyan-1);font-weight:600;">Ejemplo: "Para 'procedimiento cotizaciones', retorna info del doc X"</p>
+    </div>
+    <div class="classify-card">
+      <div class="classify-icon">⚡</div>
+      <h3>Edge-Case</h3>
+      <p>Caso de borde o situación extrema. Comportamiento ante inputs inusuales, vacíos, malformados o límites del sistema.</p>
+      <p style="margin-top:.75rem;font-size:.8rem;color:var(--cyan-1);font-weight:600;">Ejemplo: "Consulta vacía retorna error 400 con mensaje claro"</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2.5rem;">
+    <h3>Ejercicio de clasificación: dado estos acceptance criteria, ¿cuál es cuál?</h3>
+    <code>
+AC-1: "El RAG siempre retorna respuesta en menos de 5s"
+      → PROPERTY (para TODO input, tiempo < 5s)
+
+AC-2: "Para la pregunta '¿qué es una AFP?', retorna definición del glosario"
+      → EXAMPLE (un caso específico, un input concreto)
+
+AC-3: "Si el usuario envía un string de 10,000 caracteres, el sistema lo trunca"
+      → EDGE-CASE (input extremo, límite del sistema)
+
+AC-4: "Toda respuesta incluye al menos una fuente citada"
+      → PROPERTY (para TODA respuesta, sin excepción)
+
+AC-5: "Si la conexión a Bedrock falla, retorna error 503"
+      → EDGE-CASE (situación de fallo, no normal)
+
+AC-6: "Para 'procedimiento deploy', retorna pasos del doc guia-deploy.md"
+      → EXAMPLE (caso específico con input y output conocido)
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔬</div>
+      <h3>¿Cómo testear properties?</h3>
+      <p>Con Property-Based Testing (PBT): genera cientos de inputs aleatorios y verifica que la propiedad se cumple para TODOS. Si falla para uno solo, hay bug.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📝</div>
+      <h3>¿Cómo testear examples?</h3>
+      <p>Con unit tests tradicionales: input fijo → output esperado. Son los tests que ya conoces: <code>expect(result).toBe(expected)</code>.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⚡</div>
+      <h3>¿Cómo testear edge-cases?</h3>
+      <p>Con tests específicos de boundary: inputs vacíos, nulos, extremadamente largos, caracteres especiales, timeouts, desconexiones.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- VERIFICACIÓN FORMAL -->
+<section id="verificacion">
+  <div class="section-label">04 — Verificación formal de acceptance criteria</div>
+  <h2 class="fade-in">Consistency, Completeness, <span class="gradient-text">Conflicts</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Antes de implementar, los acceptance criteria deben pasar una verificación formal. ¿Se contradicen? ¿Cubren todos los casos? ¿Hay conflictos? Kiro puede detectar estos problemas automáticamente al analizar los requirements.
+  </p>
+
+  <div class="verify-item fade-in">
+    <div class="verify-icon">🔄</div>
+    <div>
+      <h3>Consistency (Consistencia)</h3>
+      <p>Los criteria no se contradicen entre sí. Si AC-1 dice "responder siempre en < 5s" y AC-7 dice "procesar indexaciones masivas sin límite de tiempo", hay una contradicción potencial si la indexación bloquea consultas.</p>
+      <p style="margin-top:.75rem;font-size:.85rem;color:var(--cyan-1);"><strong>Pregunta clave:</strong> ¿Puedo cumplir TODOS los criteria simultáneamente sin que uno viole a otro?</p>
+    </div>
+  </div>
+
+  <div class="verify-item fade-in">
+    <div class="verify-icon">📋</div>
+    <div>
+      <h3>Completeness (Completitud)</h3>
+      <p>Los criteria cubren todos los escenarios posibles. ¿Qué pasa si el input es vacío? ¿Y si Bedrock está caído? ¿Y si el documento indexado se eliminó después de indexar? Si hay un escenario sin criterio definido, el comportamiento es impredecible.</p>
+      <p style="margin-top:.75rem;font-size:.85rem;color:var(--cyan-1);"><strong>Pregunta clave:</strong> ¿Hay algún input o situación posible que no está cubierta por ningún criteria?</p>
+    </div>
+  </div>
+
+  <div class="verify-item fade-in">
+    <div class="verify-icon">⚔️</div>
+    <div>
+      <h3>Conflicts (Conflictos)</h3>
+      <p>Dos criteria exigen comportamientos opuestos ante el mismo input. Ejemplo: AC-3 dice "si no hay resultados, retornar mensaje vacío" y AC-5 dice "toda respuesta debe incluir al menos una sugerencia". ¿Qué pasa cuando no hay resultados? Conflicto.</p>
+      <p style="margin-top:.75rem;font-size:.85rem;color:var(--cyan-1);"><strong>Pregunta clave:</strong> ¿Hay dos criteria que aplican al mismo input pero exigen respuestas diferentes?</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2.5rem;">
+    <h3>Ejemplo: Detección de conflicto en Kiro</h3>
+    <code>
+# Kiro analiza tus requirements y detecta:
+
+⚠️ CONFLICTO detectado entre REQ-3 y REQ-7:
+
+  REQ-3 [Event-Driven]:
+  "WHEN un usuario consulta, el servicio SHALL retornar
+   respuesta con al menos 1 fuente citada."
+
+  REQ-7 [Unwanted Behavior]:
+  "IF no hay documentos relevantes, THEN el servicio SHALL
+   retornar 'no encontré información'."
+
+  → CONFLICTO: Si no hay documentos relevantes, ¿retorna
+    con fuente citada (REQ-3) o sin fuente (REQ-7)?
+
+  💡 SUGERENCIA: Agregar excepción a REQ-3:
+  "...con al menos 1 fuente citada, EXCEPTO cuando aplique REQ-7."
+    </code>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p><strong>Regla:</strong> Toda inconsistencia, incompletitud o conflicto en los acceptance criteria se convierte en un bug en producción. Es más barato detectarlos en la spec que en el código.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 3 · Módulo 3 · Sección 3.1 — Correctness Properties para el RAG</p>
+  <p style="margin-top:.5rem;">Conceptos basados en Property-Based Testing (PBT) y verificación formal de requirements</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

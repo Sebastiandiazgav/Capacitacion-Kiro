@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — Análisis de Requisitos y Bugfix Workflow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:700px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .cli-block{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2.5rem}
+    .cli-block code{display:block;background:#0d1117;border-radius:8px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;color:var(--cyan-2);margin-top:1.5rem;overflow-x:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    .quote-block .quote-source{font-size:.8rem;font-style:normal;color:var(--text-muted);margin-top:.75rem}
+    .arch-diagram{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem;margin-top:2.5rem;text-align:center}
+    .arch-flow{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}
+    .arch-node{background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.3rem;font-size:.85rem;font-weight:600}
+    .arch-node.main{background:linear-gradient(135deg,var(--purple-1),var(--purple-2));border:none;color:#fff}
+    .arch-node.tool{background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:var(--cyan-2)}
+    .arch-node.bad{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.3);color:var(--red)}
+    .arch-node.good{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green)}
+    .arch-arrow{font-size:1.3rem;color:var(--cyan-1)}
+    .arch-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-top:2rem;font-weight:600}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}.arch-flow{flex-direction:column}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#ambiguedades">Ambigüedades</a></li>
+    <li><a href="#conflictos">Conflictos</a></li>
+    <li><a href="#bugfix">Bugfix Workflow</a></li>
+    <li><a href="#caso">Caso práctico</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 3 · Sección 3.3 · Workshop</div>
+  <h1 class="fade-in">Análisis de Requisitos y<br /><span class="gradient-text">Bugfix Workflow</span></h1>
+  <p class="fade-in">Detectar ambigüedades y conflictos en requisitos ANTES de implementar, y cuando un bug aparece, resolverlo con un ciclo riguroso: reproducir → spec → fix → verificar con PBT. Sin regresiones.</p>
+  <a href="#ambiguedades" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- AMBIGÜEDADES -->
+<section id="ambiguedades">
+  <div class="section-label">01 — Análisis de ambigüedades</div>
+  <h2 class="fade-in">Requisitos que parecen claros <span class="gradient-text">pero no lo son</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Un requisito puede parecer correcto a simple vista pero ocultar ambigüedades que solo se manifiestan durante la implementación. La verificación formal detecta estos problemas antes de escribir código.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Ejemplo: Ambigüedad oculta en un requisito del RAG</h3>
+    <code>
+# Requisito aparentemente claro:
+"WHEN un usuario consulta el RAG, el sistema SHALL responder
+con fuentes citadas en menos de 5 segundos."
+
+# Ambigüedades ocultas:
+❓ ¿"responder con fuentes" incluye el caso donde no hay matches?
+❓ ¿"menos de 5 segundos" es tiempo total o solo tiempo de LLM?
+❓ ¿"fuentes citadas" = nombre del archivo, o nombre + chunk + score?
+❓ ¿Si Bedrock tarda 4.9s y la post-procesión 0.2s, cumple o no?
+
+# Versión sin ambigüedad:
+"WHEN un usuario envía una consulta válida (string no vacío,
+longitud <= 500 chars) al endpoint /query, el servicio de
+consultas SHALL retornar un JSON con campo 'sources' conteniendo
+al menos 1 objeto {documentName, chunk, score} donde score >= 0.3,
+con tiempo total de respuesta (incluyendo red) < 5000ms medido
+en p95 sobre ventana de 1 minuto."
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔍</div>
+      <h3>Palabras peligrosas</h3>
+      <p>"rápido", "correcto", "adecuado", "relevante", "apropiado" — todas son ambiguas. Reemplazar por métricas: ¿cuántos ms? ¿qué score? ¿qué formato exacto?</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>Test de la pregunta "¿y si...?"</h3>
+      <p>Por cada requisito, pregunta: "¿y si el input es vacío?", "¿y si hay timeout?", "¿y si hay 0 matches?". Si no sabes la respuesta → hay ambigüedad.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🤖</div>
+      <h3>Kiro detecta automáticamente</h3>
+      <p>Al crear una spec, Kiro señala requirements con métricas faltantes, condiciones implícitas o respuestas vagas. Te sugiere la versión desambiguada.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CONFLICTOS -->
+<section id="conflictos">
+  <div class="section-label">02 — Detección de conflictos</div>
+  <h2 class="fade-in">Cuando dos criterios se <span class="gradient-text">contradicen</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Dos acceptance criteria pueden exigir comportamientos opuestos ante el mismo input. Estos conflictos se convierten en bugs inevitables si no se detectan en la fase de requisitos.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Ejemplo: Conflicto real en el RAG</h3>
+    <code>
+# CONFLICTO entre REQ-3 y REQ-7:
+
+REQ-3 [Event-Driven]:
+  "WHEN un usuario consulta, el servicio SHALL retornar
+   respuesta con al menos 1 fuente citada."
+
+REQ-7 [Unwanted Behavior]:
+  "IF no hay documentos relevantes (score < 0.3),
+   THEN el servicio SHALL retornar 'No encontré información'."
+
+⚔️ CONFLICTO: Cuando no hay matches relevantes...
+  - REQ-3 exige: respuesta CON fuente
+  - REQ-7 exige: respuesta SIN fuente (solo mensaje)
+
+💡 RESOLUCIÓN: Agregar excepción explícita a REQ-3:
+  "...con al menos 1 fuente citada, EXCEPTO cuando
+   aplique la condición de REQ-7 (sin matches relevantes)."
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">⚔️</div>
+      <h3>Cómo detectar conflictos</h3>
+      <p>Para cada par de requirements, pregunta: "¿Existe algún input para el cual ambos aplican pero exigen respuestas diferentes?" Si sí → conflicto.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔧</div>
+      <h3>Cómo resolver</h3>
+      <p><strong>Priorización:</strong> un requirement gana sobre otro. <strong>Excepción:</strong> "EXCEPTO cuando...". <strong>División:</strong> separar en sub-escenarios mutuamente excluyentes.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧪</div>
+      <h3>Conflicto → Property Test</h3>
+      <p>Todo conflicto resuelto se convierte en un property test: "Para inputs en la zona de conflicto, el sistema sigue la regla X (no la Y)". PBT verifica con inputs aleatorios.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- BUGFIX WORKFLOW -->
+<section id="bugfix">
+  <div class="section-label">03 — Bugfix Workflow</div>
+  <h2 class="fade-in">Reproducir → Spec → Fix → <span class="gradient-text">Verify</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Cuando un bug aparece, no lo "arreglas directo". Sigues un ciclo riguroso que documenta el problema, previene regresiones y garantiza que el fix es correcto. Kiro tiene Bugfix Specs nativos para esto.
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Ciclo Bugfix Workflow</h3>
+    <div class="arch-flow" style="margin-top:2rem;">
+      <div class="arch-node bad">🐛 Bug detectado</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">🔬 Reproducir</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node main">📋 Bugfix Spec</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">🔧 Implementar Fix</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node good">✅ Verificar con PBT</div>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔬</div>
+      <h3>1. Reproducir</h3>
+      <p>Encontrar el input exacto que causa el bug. Idealmente con un test que falla consistentemente. Si PBT lo encontró → ya tienes el input mínimo (shrinking).</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📋</div>
+      <h3>2. Bugfix Spec</h3>
+      <p>Crear spec en Kiro (tipo Bugfix). Documenta:<br/>• <strong>Current behavior:</strong> qué hace ahora (mal)<br/>• <strong>Expected behavior:</strong> qué debería hacer<br/>• <strong>Unchanged behavior:</strong> qué NO debe cambiar</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔧</div>
+      <h3>3. Implementar Fix</h3>
+      <p>Kiro genera tasks desde la bugfix spec. El fix se implementa con contexto completo: sabe qué NO tocar (unchanged behavior) y qué debe cambiar.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">✅</div>
+      <h3>4. Verificar con PBT</h3>
+      <p>Ejecutar property tests para confirmar:<br/>• La property que se violaba ahora pasa<br/>• Ninguna otra property se rompió (no regression)<br/>• El input que causó el bug ya no falla</p>
+    </div>
+  </div>
+
+  <div class="cli-block fade-in" style="margin-top:2rem;">
+    <h3>Bugfix Spec en Kiro (estructura)</h3>
+    <code>
+# .kiro/specs/fix-fuente-incorrecta/bugfix.md
+
+## Bug: RAG cita fuente incorrecta
+
+### Current Behavior (comportamiento actual — MAL):
+Cuando el RAG procesa una consulta que coincide con múltiples
+documentos, el campo documentName en sources[] a veces referencia
+un documento diferente al que contiene el chunk citado.
+
+### Expected Behavior (comportamiento esperado — BIEN):
+Para toda respuesta, cada objeto en sources[] debe tener un
+documentName que corresponde exactamente al archivo del cual
+se extrajo el chunk citado.
+
+### Unchanged Behavior (no debe cambiar):
+- El tiempo de respuesta no debe aumentar
+- El ranking de relevancia no debe alterarse
+- La función de indexación no debe modificarse
+- Las demás properties (CP-1, CP-3, CP-4) deben seguir pasando
+    </code>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p><strong>¿Por qué no "arreglar directo"?</strong> Sin bugfix spec: arreglas el bug pero introduces un regression en otro lado. Con bugfix spec: documentas qué NO tocar, el agente respeta los boundaries, y PBT verifica que no rompiste nada.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CASO PRÁCTICO -->
+<section id="caso">
+  <div class="section-label">04 — Caso práctico</div>
+  <h2 class="fade-in">Bug: RAG cita <span class="gradient-text">fuente incorrecta</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Escenario real: un usuario consulta sobre "procedimiento de cotizaciones" y el RAG responde correctamente, pero el campo documentName dice "guia-deploy-microservicios.md" cuando el chunk en realidad viene de "procedimiento-cotizaciones.md".
+  </p>
+
+  <div class="arch-diagram fade-in">
+    <h3>Flujo del bug</h3>
+    <div class="arch-label">LO QUE PASA (MAL)</div>
+    <div class="arch-flow">
+      <div class="arch-node">❓ Query: "cotizaciones"</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">Retriever: chunk correcto</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node bad">❌ Metadata: doc incorrecto</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node bad">📄 Fuente: "guia-deploy.md"</div>
+    </div>
+    <div class="arch-label">LO QUE DEBERÍA PASAR (BIEN)</div>
+    <div class="arch-flow">
+      <div class="arch-node">❓ Query: "cotizaciones"</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node tool">Retriever: chunk correcto</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node good">✅ Metadata: doc correcto</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node good">📄 Fuente: "procedimiento-cotizaciones.md"</div>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🐛</div>
+      <h3>Causa raíz</h3>
+      <p>El text splitter genera chunks y les asigna metadata con el nombre del documento. Pero cuando dos documentos se procesan en paralelo, el índice de metadata se desfasa del índice de chunks.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🧪</div>
+      <h3>Property que lo detecta</h3>
+      <p>CP-2: "Para toda fuente citada en sources[], el chunk DEBE existir literalmente en el documento referenciado por documentName." PBT encuentra el fallo con múltiples docs.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔧</div>
+      <h3>Fix</h3>
+      <p>Asignar metadata al chunk DURANTE el split (no después). Cada chunk lleva su documentName embebido desde el momento de creación, no por posición en array.</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p><strong>Siguiente paso:</strong> Abre <code>3.3 analisis-requisitos-bugfix.md</code> para el workshop. Vas a escribir las 4 properties, ejecutar PBT, encontrar un edge case, y aplicar el bugfix workflow completo.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 3 · Módulo 3 · Sección 3.3 — Análisis de Requisitos y Bugfix Workflow</p>
+  <p style="margin-top:.5rem;">Fuentes: <a href="https://kiro.dev/docs/specs/">kiro.dev/docs/specs</a> · Bugfix Specs · Property-Based Testing</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

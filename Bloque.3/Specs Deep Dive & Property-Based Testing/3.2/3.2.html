@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiro — PBT en Acción</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-deep:#0a0b14;--bg-card:#111827;--bg-card2:#1a1f35;
+      --purple-1:#7c3aed;--purple-2:#a855f7;--cyan-1:#06b6d4;--cyan-2:#22d3ee;
+      --text-main:#f1f5f9;--text-muted:#94a3b8;
+      --border:rgba(124,58,237,0.25);--glow:rgba(124,58,237,0.15);
+      --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);overflow-x:hidden}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(10,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--purple-2),var(--cyan-1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--cyan-2)}
+    section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 3rem 4rem;max-width:1200px;margin:0 auto}
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan-1);margin-bottom:.75rem}
+    h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;line-height:1.1}
+    h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:700;line-height:1.2}
+    h3{font-size:1.15rem;font-weight:600}
+    .gradient-text{background:linear-gradient(135deg,var(--purple-2) 0%,var(--cyan-1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    p{color:var(--text-muted);line-height:1.75;font-size:1rem}
+    #hero{min-height:100vh;max-width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 4rem;position:relative;overflow:hidden}
+    #hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,0.15);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;color:var(--purple-2);margin-bottom:1.5rem}
+    .hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--purple-2);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    #hero h1{max-width:900px;margin-bottom:1.5rem}
+    #hero p{max-width:700px;font-size:1.15rem;margin-bottom:2.5rem}
+    .btn-primary{display:inline-block;padding:.85rem 2.2rem;background:linear-gradient(135deg,var(--purple-1),var(--purple-2));color:#fff;font-weight:700;font-size:.95rem;border-radius:8px;text-decoration:none;box-shadow:0 0 30px rgba(124,58,237,0.4);transition:transform .2s,box-shadow .2s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 45px rgba(124,58,237,0.6)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple-1),var(--cyan-1))}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 40px var(--glow)}
+    .card-icon{width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem}
+    .card h3{margin-bottom:.6rem}
+    .card p{font-size:.9rem}
+    .cli-block{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;margin-top:2.5rem}
+    .cli-block code{display:block;background:#0d1117;border-radius:8px;padding:1.5rem;font-family:'Courier New',monospace;font-size:.85rem;color:var(--cyan-2);margin-top:1.5rem;overflow-x:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word}
+    .quote-block{background:var(--bg-card);border-left:4px solid var(--purple-2);border-radius:0 12px 12px 0;padding:2rem 2.5rem;margin-top:2.5rem}
+    .quote-block p{font-size:1.05rem;font-style:italic;color:var(--text-main);line-height:1.7}
+    .quote-block .quote-source{font-size:.8rem;font-style:normal;color:var(--text-muted);margin-top:.75rem}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2.5rem}
+    .compare-col{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative;overflow:hidden}
+    .compare-col::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .compare-col.old::before{background:var(--yellow)}
+    .compare-col.new::before{background:var(--green)}
+    .compare-col h3{margin-bottom:1rem}
+    .compare-col code{display:block;background:#0d1117;border-radius:8px;padding:1rem;font-family:'Courier New',monospace;font-size:.8rem;color:var(--cyan-2);line-height:1.7;white-space:pre-wrap;word-wrap:break-word;margin-top:.75rem}
+    .section-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.8rem}
+    footer a{color:var(--cyan-1);text-decoration:none}
+    @media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}section{padding:6rem 1.5rem 3rem}.compare-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ Kiro</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#que-es">¿Qué es PBT?</a></li>
+    <li><a href="#librerias">Librerías</a></li>
+    <li><a href="#generadores">Generadores</a></li>
+    <li><a href="#shrinking">Shrinking</a></li>
+    <li><a href="#integracion">Specs + PBT</a></li>
+    <li><a href="#casos">Casos prácticos</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-badge"><span></span> Módulo 3 · Sección 3.2 · Workshop</div>
+  <h1 class="fade-in">Property-Based Testing<br /><span class="gradient-text">en Acción</span></h1>
+  <p class="fade-in">En vez de escribir 50 unit tests con inputs fijos, defines UNA propiedad y el framework genera cientos de inputs aleatorios para verificarla. Si encuentra un fallo, te muestra el ejemplo mínimo que lo reproduce.</p>
+  <a href="#que-es" class="btn-primary fade-in">Explorar →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- QUÉ ES PBT -->
+<section id="que-es">
+  <div class="section-label">01 — ¿Qué es Property-Based Testing?</div>
+  <h2 class="fade-in">De example-based a <span class="gradient-text">property-based</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    En testing tradicional (example-based), tú defines inputs y outputs esperados. En PBT, defines una PROPIEDAD que siempre debe cumplirse y el framework genera inputs aleatorios para encontrar violaciones. Es la forma de testear lo que no puedes anticipar.
+  </p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-col old">
+      <h3 style="color:var(--yellow);">📝 Example-Based Testing (tradicional)</h3>
+      <code>
+// Tú defines cada caso manualmente
+test("suma 2+3 = 5", () => {
+  expect(suma(2, 3)).toBe(5);
+});
+
+test("suma 0+0 = 0", () => {
+  expect(suma(0, 0)).toBe(0);
+});
+
+// ¿Y si suma(-1, MAX_INT) falla?
+// No lo sabes hasta que alguien lo descubre
+      </code>
+    </div>
+    <div class="compare-col new">
+      <h3 style="color:var(--green);">🔬 Property-Based Testing</h3>
+      <code>
+// Defines UNA propiedad universal
+test.prop([fc.integer(), fc.integer()])(
+  "suma es conmutativa",
+  (a, b) => {
+    expect(suma(a, b)).toBe(suma(b, a));
+  }
+);
+
+// fast-check genera 100+ pares aleatorios
+// y verifica que la propiedad se cumple SIEMPRE
+// Si falla con (-1, MAX_INT) → te lo dice
+      </code>
+    </div>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2.5rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🎲</div>
+      <h3>Inputs aleatorios</h3>
+      <p>El framework genera cientos de inputs que tú nunca habrías pensado: strings vacíos, números negativos, caracteres Unicode, longitudes extremas.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔍</div>
+      <h3>Encuentra lo inesperado</h3>
+      <p>PBT descubre edge cases que los humanos no anticipamos. Bugs que solo aparecen con cierta combinación de inputs que nadie habría escrito como test.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📐</div>
+      <h3>Menos tests, más cobertura</h3>
+      <p>Una sola property con 100 iteraciones cubre más escenarios que 20 unit tests manuales. Define la regla, el framework hace el trabajo.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- LIBRERÍAS -->
+<section id="librerias">
+  <div class="section-label">02 — Librerías PBT</div>
+  <h2 class="fade-in">fast-check <span class="gradient-text">& Hypothesis</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Las dos librerías principales de PBT en los ecosistemas que usamos. Para este workshop usaremos fast-check (TypeScript), pero Hypothesis es la referencia en Python.
+  </p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-col new">
+      <h3 style="color:var(--green);">⚡ fast-check (TypeScript/JS)</h3>
+      <code>
+// Instalación
+npm install fast-check --save-dev
+
+// Uso básico
+import fc from 'fast-check';
+
+fc.assert(
+  fc.property(
+    fc.string(),  // generador de strings aleatorios
+    (input) => {
+      // La propiedad que siempre debe cumplirse
+      const result = miFuncion(input);
+      return result.length <= MAX_LENGTH;
+    }
+  ),
+  { numRuns: 100 }  // 100 iteraciones
+);
+      </code>
+      <p style="margin-top:1rem;font-size:.85rem;color:var(--text-muted);">
+        Muy buena integración con Jest/Vitest. Shrinking automático. TypeScript nativo. Generadores composables.
+      </p>
+    </div>
+    <div class="compare-col old">
+      <h3 style="color:var(--yellow);">🐍 Hypothesis (Python)</h3>
+      <code>
+# Instalación
+pip install hypothesis
+
+# Uso básico
+from hypothesis import given
+from hypothesis import strategies as st
+
+@given(st.text())
+def test_mi_funcion(input_text):
+    """La propiedad que siempre debe cumplirse"""
+    result = mi_funcion(input_text)
+    assert len(result) <= MAX_LENGTH
+      </code>
+      <p style="margin-top:1rem;font-size:.85rem;color:var(--text-muted);">
+        El estándar de PBT en Python. Decorador @given elegante. Database de ejemplos que fallan. Integración con pytest.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- GENERADORES -->
+<section id="generadores">
+  <div class="section-label">03 — Generadores personalizados</div>
+  <h2 class="fade-in">Arbitraries: <span class="gradient-text">inputs a medida</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Los generadores (llamados "arbitraries" en fast-check) producen datos aleatorios con la forma que necesitas. Puedes componer generadores simples para crear inputs complejos específicos de tu dominio.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Generadores para el RAG de AFP UNO</h3>
+    <code>
+import fc from 'fast-check';
+
+// Generador de consultas aleatorias al RAG
+const queryArbitrary = fc.oneof(
+  fc.string({ minLength: 1, maxLength: 500 }),        // strings normales
+  fc.constantFrom(                                      // consultas reales
+    "¿Cuál es el procedimiento de cotizaciones?",
+    "¿Cómo hago deploy?",
+    "¿Qué dice la normativa sobre fondos?"
+  ),
+  fc.string({ minLength: 0, maxLength: 0 }),           // consulta vacía
+  fc.unicode({ minLength: 1, maxLength: 200 }),        // con caracteres especiales
+  fc.stringOf(fc.constantFrom('á','é','í','ñ','ü')),  // solo acentos/ñ
+);
+
+// Generador de documentos de longitud variable
+const documentArbitrary = fc.record({
+  name: fc.string({ minLength: 3, maxLength: 50 }).map(s => s + '.md'),
+  content: fc.string({ minLength: 10, maxLength: 10000 }),
+  encoding: fc.constantFrom('utf-8', 'ascii', 'latin1'),
+});
+
+// Generador de configuración del RAG
+const configArbitrary = fc.record({
+  chunkSize: fc.integer({ min: 100, max: 2000 }),
+  chunkOverlap: fc.integer({ min: 0, max: 500 }),
+  groundingThreshold: fc.float({ min: 0.1, max: 0.9 }),
+  maxResponseLength: fc.integer({ min: 100, max: 5000 }),
+});
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🧩</div>
+      <h3>Composables</h3>
+      <p>Combinas generadores simples (<code>fc.string()</code>, <code>fc.integer()</code>) para crear estructuras complejas (<code>fc.record()</code>, <code>fc.array()</code>). Tu dominio, tu generador.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>Realistas + extremos</h3>
+      <p>Mezcla inputs realistas (consultas normales) con extremos (strings vacíos, 10K chars, emojis). <code>fc.oneof()</code> elige aleatoriamente entre generadores.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔄</div>
+      <h3>Reproducibles</h3>
+      <p>fast-check usa un seed. Si un test falla, puedes re-ejecutar con el mismo seed y reproducir el fallo exacto.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SHRINKING -->
+<section id="shrinking">
+  <div class="section-label">04 — Shrinking</div>
+  <h2 class="fade-in">El ejemplo mínimo <span class="gradient-text">que reproduce el fallo</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Cuando PBT encuentra un input que viola la property, no te muestra ese input directamente — lo REDUCE al ejemplo más simple posible que aún causa el fallo. Esto se llama "shrinking" y es una de las ventajas más poderosas de PBT.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Ejemplo: Shrinking en acción</h3>
+    <code>
+// Property: "El RAG siempre responde en menos de 5 segundos"
+fc.assert(
+  fc.property(queryArbitrary, async (query) => {
+    const start = Date.now();
+    const response = await rag.query(query);
+    return (Date.now() - start) < 5000;
+  })
+);
+
+// ❌ FALLO detectado en iteración 47 con:
+//    Input original: "¿Cuál es el procedimiento completo detallado
+//    paso a paso con ejemplos y referencias cruzadas de la normativa
+//    vigente actualizada al 2025 sobre cotizaciones previsionales
+//    obligatorias y voluntarias...?" (847 caracteres)
+
+// 🔄 SHRINKING... reduciendo el input...
+//    Intento 1: 423 chars → falla
+//    Intento 2: 212 chars → falla
+//    Intento 3: 106 chars → pasa ✅
+//    Intento 4: 159 chars → falla
+//    Intento 5: 133 chars → falla
+//    Intento 6: 120 chars → pasa ✅
+//    Intento 7: 126 chars → falla (MÍNIMO!)
+
+// ✅ RESULTADO: El input mínimo que causa el fallo tiene 126 chars.
+//    El RAG tarda > 5s cuando la consulta supera ~125 caracteres.
+//    → BUG: falta chunking/truncado del input de consulta.
+    </code>
+  </div>
+
+  <div class="cards-grid" style="margin-top:2rem;">
+    <div class="card fade-in">
+      <div class="card-icon">🔬</div>
+      <h3>¿Por qué importa?</h3>
+      <p>Sin shrinking: "falla con un string de 847 chars". Con shrinking: "falla con cualquier input de 126+ chars". El segundo te dice exactamente dónde está el bug.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">⚙️</div>
+      <h3>Es automático</h3>
+      <p>fast-check hace shrinking sin que configures nada. Cada generador sabe cómo reducirse: strings se acortan, números se acercan a cero, arrays pierden elementos.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🎯</div>
+      <h3>Búsqueda binaria inteligente</h3>
+      <p>No reduce de uno en uno — usa búsqueda binaria para encontrar el mínimo rápidamente. De 847 chars a 126 en solo 7 intentos.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- INTEGRACIÓN CON SPECS -->
+<section id="integracion">
+  <div class="section-label">05 — Integración PBT con Kiro Specs</div>
+  <h2 class="fade-in">De correctness properties en design.md a <span class="gradient-text">tests automáticos</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Las correctness properties que definiste en M3.1 se traducen directamente en property tests con fast-check. El agente de Kiro puede generar estos tests automáticamente desde el design.md.
+  </p>
+
+  <div class="cli-block fade-in">
+    <h3>Correctness Property → Property Test</h3>
+    <code>
+// DESIGN.MD dice:
+// CP-1: "Para toda consulta, la respuesta incluye >= 1 fuente citada"
+
+// SE TRADUCE EN:
+import fc from 'fast-check';
+import { queryRAG } from '../src/rag';
+
+describe('Correctness Properties del RAG', () => {
+
+  it('CP-1: Toda respuesta incluye al menos una fuente', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.string({ minLength: 1, maxLength: 500 }),
+        async (query) => {
+          const response = await queryRAG(query);
+          // Si hay respuesta, debe tener fuentes
+          if (response.type !== 'NO_RELEVANT_INFO') {
+            return response.sources.length >= 1;
+          }
+          return true; // NO_RELEVANT_INFO es válido sin fuentes
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it('CP-3: Respuesta siempre acotada', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.string({ minLength: 0, maxLength: 1000 }),
+        async (query) => {
+          const response = await queryRAG(query);
+          return response.answer.length <= 3000
+              && response.answer.length >= 0;
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+});
+    </code>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2rem;">
+    <p><strong>Flujo:</strong> Requirements EARS → Correctness Properties (design.md) → Property Tests (fast-check) → Ejecución con 100+ iteraciones → Shrinking si falla. Todo automatizable por el agente de Kiro.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CASOS PRÁCTICOS -->
+<section id="casos">
+  <div class="section-label">06 — Casos prácticos para el RAG</div>
+  <h2 class="fade-in">3 escenarios que PBT <span class="gradient-text">descubre por ti</span></h2>
+  <p class="fade-in" style="max-width:720px;margin-top:1rem;">
+    Estos son bugs reales que PBT puede encontrar en un RAG y que los unit tests tradicionales rara vez cubren. Cada uno es un property test que vas a implementar en el workshop.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card fade-in">
+      <div class="card-icon">🫙</div>
+      <h3>Caso 1: Consulta vacía</h3>
+      <p><strong>Property:</strong> "Para todo input (incluyendo string vacío), el RAG responde gracefully sin lanzar excepción."</p>
+      <p style="margin-top:.75rem;font-size:.85rem;color:var(--text-muted);">PBT genera strings vacíos, solo espacios, solo newlines. ¿Tu RAG maneja <code>""</code>, <code>"   "</code>, <code>"\n\n"</code>? ¿Retorna error 400 o explota con TypeError?</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">🔤</div>
+      <h3>Caso 2: Encoding especial</h3>
+      <p><strong>Property:</strong> "Para todo documento con caracteres válidos UTF-8, el indexador genera embeddings sin error."</p>
+      <p style="margin-top:.75rem;font-size:.85rem;color:var(--text-muted);">PBT genera docs con ñ, tildes, emojis 🧪, caracteres CJK, RTL. ¿El text splitter parte un carácter multi-byte a la mitad? ¿Titan Embed acepta emojis?</p>
+    </div>
+    <div class="card fade-in">
+      <div class="card-icon">📊</div>
+      <h3>Caso 3: Ranking estable</h3>
+      <p><strong>Property:</strong> "Para toda query que coincide con N documentos, dos ejecuciones consecutivas retornan el mismo orden de resultados."</p>
+      <p style="margin-top:.75rem;font-size:.85rem;color:var(--text-muted);">PBT genera la misma query 2 veces. ¿El ranking es determinístico? ¿O la temperatura del LLM causa variaciones en el orden de fuentes citadas?</p>
+    </div>
+  </div>
+
+  <div class="quote-block fade-in" style="margin-top:2.5rem;">
+    <p><strong>Siguiente paso:</strong> Abre el archivo <code>3.2 pbt-en-accion.md</code> para el workshop práctico. Vas a instalar fast-check, escribir estos property tests y ejecutarlos con 100+ iteraciones sobre tu RAG.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Capacitación Kiro para AFP UNO · Bloque 3 · Módulo 3 · Sección 3.2 — PBT en Acción</p>
+  <p style="margin-top:.5rem;">Fuentes: <a href="https://github.com/dubzzz/fast-check">fast-check (GitHub)</a> · <a href="https://hypothesis.readthedocs.io">Hypothesis (Python)</a></p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
