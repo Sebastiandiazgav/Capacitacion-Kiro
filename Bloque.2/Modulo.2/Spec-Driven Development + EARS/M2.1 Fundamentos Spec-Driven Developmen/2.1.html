@@ -103,6 +103,7 @@
     <li><a href="#workflows">Workflows</a></li>
     <li><a href="#ejecucion">Ejecución</a></li>
     <li><a href="#antipatron">Anti-patrón</a></li>
+    <li><a href="#resumen">Resumen</a></li>
   </ul>
 </nav>
 
@@ -477,6 +478,54 @@ tu-proyecto/
       <div class="card-icon">🎯</div>
       <h3>La transición</h3>
       <p>Puedes explorar en Vibe y cuando encuentras el enfoque correcto, crear una Spec para implementar con rigor. No son excluyentes — son complementarios.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- RESUMEN -->
+<section id="resumen">
+  <div class="section-label">07 — Resumen ejecutivo</div>
+  <h2 class="fade-in">Lo que debes recordar de <span class="gradient-text">Spec-Driven Development</span></h2>
+
+  <div style="position:relative;margin-top:2.5rem;padding-left:2rem;" class="fade-in">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--purple-1),var(--cyan-1));"></div>
+
+    <div style="position:relative;margin-bottom:2.5rem;padding-left:2rem;">
+      <div style="position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep);"></div>
+      <h3>"Diseña primero, implementa después"</h3>
+      <p style="font-size:.875rem;">La spec es el contrato entre tu intención y la ejecución del agente. Sin spec, el agente adivina. Con spec, el agente ejecuta un plan verificable.</p>
+    </div>
+
+    <div style="position:relative;margin-bottom:2.5rem;padding-left:2rem;">
+      <div style="position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep);"></div>
+      <h3>Tres fases: Requirements → Design → Tasks</h3>
+      <p style="font-size:.875rem;">Cada fase genera un artefacto Markdown. Entre cada fase hay un gate de aprobación — tú revisas y decides antes de que el agente avance.</p>
+    </div>
+
+    <div style="position:relative;margin-bottom:2.5rem;padding-left:2rem;">
+      <div style="position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep);"></div>
+      <h3>Los artefactos viven en .kiro/specs/&lt;feature&gt;/</h3>
+      <p style="font-size:.875rem;">requirements.md, design.md, tasks.md — versionados con tu código, legibles por humanos, parseables por el agente.</p>
+    </div>
+
+    <div style="position:relative;margin-bottom:2.5rem;padding-left:2rem;">
+      <div style="position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep);"></div>
+      <h3>Tres workflows: Requirements-First, Design-First, Quick Plan</h3>
+      <p style="font-size:.875rem;">Requirements-First si sabes el "qué". Design-First si ya tienes arquitectura. Quick Plan para features simples sin gates.</p>
+    </div>
+
+    <div style="position:relative;margin-bottom:2.5rem;padding-left:2rem;">
+      <div style="position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep);"></div>
+      <h3>Ejecución paralela con dependency graph (Waves)</h3>
+      <p style="font-size:.875rem;">El agente agrupa tasks independientes y las ejecuta en paralelo. Verificación automática entre cada wave. Status tracking en tiempo real.</p>
+    </div>
+
+    <div style="position:relative;margin-bottom:0;padding-left:2rem;">
+      <div style="position:absolute;left:-2rem;top:.4rem;width:12px;height:12px;border-radius:50%;background:var(--purple-2);border:2px solid var(--bg-deep);"></div>
+      <h3>Vibe para explorar, Spec para construir — nunca al revés</h3>
+      <p style="font-size:.875rem;">Vibe es para prototipos y aprendizaje. Spec es para features de producción. Son complementarios, no excluyentes.</p>
     </div>
   </div>
 </section>
